@@ -1,4 +1,12 @@
 import { WORKS, type Work } from "./works";
+import {
+  tokenizeText,
+  matchTextWithArsip,
+  FALLBACK_ARSIP_DATA,
+  getLastMatchResult,
+  setLastMatchResult,
+} from "@/utils/matchingService";
+import type { MatchResult as FullMatchResult, MatchedTextResult } from "@/types/arsip";
 
 export interface MatchResult {
   work: Work;
@@ -17,78 +25,103 @@ export interface CheckResult {
   topConcept: number;
 }
 
-const STOPWORDS = new Set(
-  "yang dan di ke dari untuk dengan adalah ini itu pada atau sebagai dalam akan bisa ada tidak juga sudah lebih agar supaya oleh karena bagi para serta antara seperti telah kepada yaitu yakni ialah pun hanya sangat pula lagi per secara mereka kita kamu dia saya aku nya mu ku lah kah tah".split(" "),
-);
-
 export function tokenize(text: string): string[] {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9à-ÿ\s]/g, " ")
-    .split(/\s+/)
-    .filter((w) => w.length > 2 && !STOPWORDS.has(w));
-}
-
-function tfidfCosine(queryTokens: string[], docTokens: string[], df: Map<string, number>, nDocs: number): number {
-  if (!queryTokens.length || !docTokens.length) return 0;
-  const idf = (t: string) => Math.log(1 + nDocs / (1 + (df.get(t) ?? 0)));
-  const qtf = new Map<string, number>();
-  const dtf = new Map<string, number>();
-  for (const t of queryTokens) qtf.set(t, (qtf.get(t) ?? 0) + 1);
-  for (const t of docTokens) dtf.set(t, (dtf.get(t) ?? 0) + 1);
-  let dot = 0, qn = 0, dn = 0;
-  qtf.forEach((c, t) => { const w = c * idf(t); qn += w * w; });
-  dtf.forEach((c, t) => { const w = c * idf(t); dn += w * w; });
-  qtf.forEach((c, t) => {
-    if (dtf.has(t)) dot += c * idf(t) * (dtf.get(t)! * idf(t));
-  });
-  return dot / (Math.sqrt(qn) * Math.sqrt(dn) || 1);
-}
-
-function conceptMatches(inputText: string, work: Work): string[] {
-  const lower = ` ${inputText.toLowerCase()} `;
-  return work.keyphrases.filter((kp) => {
-    const words = kp.toLowerCase().split(/\s+/);
-    // frasa penuh cocok, atau semua kata kunci frasa muncul di input
-    return lower.includes(kp.toLowerCase()) || words.every((w) => lower.includes(w));
-  });
+  return tokenizeText(text);
 }
 
 export function checkIdea(title: string, description: string): CheckResult {
   const inputText = `${title} ${description}`;
-  const queryTokens = tokenize(inputText);
-  const docTokensList = WORKS.map((w) => tokenize(`${w.title} ${w.summary}`));
-  const df = new Map<string, number>();
-  for (const tokens of docTokensList) {
-    for (const t of new Set(tokens)) df.set(t, (df.get(t) ?? 0) + 1);
-  }
+  const matchedTexts: MatchedTextResult[] = matchTextWithArsip(inputText, FALLBACK_ARSIP_DATA);
 
-  const matches: MatchResult[] = WORKS.map((work, i) => {
-    const textScore = tfidfCosine(queryTokens, docTokensList[i] ?? [], df, WORKS.length);
-    const sharedPhrases = conceptMatches(inputText, work);
-    const conceptScore = work.keyphrases.length ? sharedPhrases.length / work.keyphrases.length : 0;
-    const workWords = new Set(tokenize(`${work.title} ${work.summary}`));
-    const sharedWords = [...new Set(queryTokens)].filter((t) => workWords.has(t)).slice(0, 12);
-    const combined = 0.5 * textScore + 0.5 * conceptScore;
-    return { work, textScore, conceptScore, combined, sharedPhrases, sharedWords };
-  })
-    .sort((a, b) => b.combined - a.combined)
-    .slice(0, 5);
+  const matches: MatchResult[] = matchedTexts.slice(0, 6).map((m: MatchedTextResult) => {
+    const foundWork = WORKS.find((w) => w.id === m.id) || {
+      id: m.karya?.id ?? m.id,
+      title: m.karya?.judul ?? m.judul,
+      year: m.karya?.tahun ?? 2024,
+      competition: m.karya?.lomba ?? "Kompetisi",
+      institution: m.karya?.institusi ?? "Institusi",
+      category: m.karya?.kategori ?? "Umum",
+      summary: m.karya?.ringkasan ?? "",
+      keyphrases: m.karya?.keyphrases ?? [],
+      sourceUrl: m.karya?.sumber_url ?? "",
+    };
+
+    return {
+      work: foundWork,
+      textScore: m.textScore,
+      conceptScore: m.conceptScore,
+      combined: m.combinedScore,
+      sharedPhrases: m.sharedPhrases,
+      sharedWords: m.sharedWords,
+    };
+  });
 
   const top = matches[0];
   const topScore = top?.combined ?? 0;
-  const band: CheckResult["band"] = topScore >= 0.4 ? "tinggi" : topScore >= 0.18 ? "sedang" : "rendah";
+  const band: CheckResult["band"] =
+    topScore >= 0.4 ? "tinggi" : topScore >= 0.18 ? "sedang" : "rendah";
 
-  return {
+  const result: CheckResult = {
     query: { title, description },
     matches,
     band,
     topText: top?.textScore ?? 0,
     topConcept: top?.conceptScore ?? 0,
   };
+
+  setLastResult(result);
+  return result;
 }
 
-// Penyimpanan hasil cek terakhir — hanya di memori (mode privat), tidak ke localStorage.
-let lastResult: CheckResult | null = null;
-export function setLastResult(r: CheckResult) { lastResult = r; }
-export function getLastResult(): CheckResult | null { return lastResult; }
+// Penyimpanan hasil cek terakhir — hanya di memori RAM (mode privat), tidak ke localStorage/server.
+let localLastResult: CheckResult | null = null;
+
+export function setLastResult(r: CheckResult | FullMatchResult) {
+  if ("matchedPosters" in r) {
+    setLastMatchResult(r);
+    localLastResult = {
+      query: { title: r.query.title, description: r.query.description },
+      matches: r.matches.map((m) => {
+        const found = WORKS.find((w) => w.id === m.work.id) || m.work;
+        return {
+          work: found,
+          textScore: m.textScore,
+          conceptScore: m.conceptScore,
+          combined: m.combined,
+          sharedPhrases: m.sharedPhrases,
+          sharedWords: m.sharedWords,
+        };
+      }),
+      band: r.band,
+      topText: r.topText,
+      topConcept: r.topConcept,
+    };
+  } else {
+    localLastResult = r;
+  }
+}
+
+export function getLastResult(): CheckResult | null {
+  if (localLastResult) return localLastResult;
+  const matchRes = getLastMatchResult();
+  if (matchRes) {
+    return {
+      query: { title: matchRes.query.title, description: matchRes.query.description },
+      matches: matchRes.matches.map((m) => {
+        const found = WORKS.find((w) => w.id === m.work.id) || m.work;
+        return {
+          work: found,
+          textScore: m.textScore,
+          conceptScore: m.conceptScore,
+          combined: m.combined,
+          sharedPhrases: m.sharedPhrases,
+          sharedWords: m.sharedWords,
+        };
+      }),
+      band: matchRes.band,
+      topText: matchRes.topText,
+      topConcept: matchRes.topConcept,
+    };
+  }
+  return null;
+}

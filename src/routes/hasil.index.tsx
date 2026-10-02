@@ -113,7 +113,7 @@ function HasilPage() {
         <div className="mt-16">
           <div className="flex flex-wrap items-center gap-3">
             <h2 className="font-display text-3xl font-extrabold">Karya yang paling mirip</h2>
-            <StickerLabel color="cyan" rotate={2}>Data contoh</StickerLabel>
+            <StickerLabel color="green" rotate={2}>Arsip Pemenang</StickerLabel>
           </div>
           {visible.length === 0 ? (
             <EmptyState title="Belum ada yang cocok. Coba kata kunci lain." mood="senang" />

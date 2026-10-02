@@ -42,7 +42,7 @@ function Detail() {
         <PosterCard rotate={-0.8}>
           <div className="flex flex-wrap gap-2">
             <StickerLabel color="green" rotate={-2}>Sumber publik</StickerLabel>
-            <StickerLabel color="cyan" rotate={2}>Data contoh</StickerLabel>
+            <StickerLabel color="blue" rotate={2}>Pemenang Lomba</StickerLabel>
           </div>
           <h1 className="mt-5 font-display text-3xl font-extrabold leading-tight md:text-4xl">{work.title}</h1>
           <p className="mt-2 text-sm text-muted-foreground">{work.competition} · {work.institution} · {work.year}</p>

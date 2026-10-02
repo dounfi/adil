@@ -10,13 +10,17 @@ const CAT_COLORS: Record<string, string> = {
   Pertanian: "bg-adil-yellow text-adil-ink",
   Kesehatan: "bg-adil-cyan text-adil-ink",
   Bisnis: "bg-adil-yellow text-adil-ink",
+  APP: "bg-adil-blue text-white",
+  "Inovasi Digital": "bg-adil-green text-white",
+  "Desain Pengalaman Pengguna": "bg-adil-cyan text-adil-ink",
+  "Penambangan Data": "bg-adil-red text-white",
 };
 
 export function WorkCard({ work, rotate = -1, score }: { work: Work; rotate?: number; score?: number }) {
   return (
     <PosterCard rotate={rotate} className="flex h-full flex-col">
       <div className="flex items-center justify-between gap-2">
-        <span className={cn("rounded-full px-3 py-1 text-[11px] font-bold", CAT_COLORS[work.category] ?? "bg-muted")}>
+        <span className={cn("rounded-full px-3 py-1 text-[11px] font-bold", CAT_COLORS[work.category] ?? "bg-adil-blue/15 text-adil-blue")}>
           {work.category}
         </span>
         <span className="text-xs font-semibold text-muted-foreground">{work.year}</span>
@@ -28,7 +32,7 @@ export function WorkCard({ work, rotate = -1, score }: { work: Work; rotate?: nu
       )}
       <div className="mt-auto flex items-center justify-between pt-4">
         <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
-          Sumber publik · Data contoh
+          Sumber publik · Terverifikasi
         </span>
         <Link to="/arsip/$id" params={{ id: work.id }} className="text-sm font-bold text-adil-blue hover:underline">
           Detail →

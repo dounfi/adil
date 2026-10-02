@@ -2,11 +2,11 @@ import { defineConfig } from "vite";
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import tsConfigPaths from "vite-tsconfig-paths";
-import { TanStackStartVite } from "@tanstack/start-plugin";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 
 export default defineConfig({
   plugins: [
-    TanStackStartVite(),
+    tanstackStart(),
     viteReact(),
     tailwindcss(),
     tsConfigPaths(),

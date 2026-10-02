@@ -39,9 +39,9 @@ function Arsip() {
         <FrameLabel>Arsip / Grid</FrameLabel>
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="font-display text-4xl font-extrabold md:text-5xl">Arsip karya</h1>
-          <StickerLabel color="cyan" rotate={3}>Data contoh</StickerLabel>
+          <StickerLabel color="green" rotate={3}>Sumber publik</StickerLabel>
         </div>
-        <p className="mt-2 text-muted-foreground">{WORKS.length} karya publik. Masih sedikit, makanya terus kami tambah.</p>
+        <p className="mt-2 text-muted-foreground">{WORKS.length} karya publik pemenang lomba resmi.</p>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <input
