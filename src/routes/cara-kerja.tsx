@@ -5,9 +5,9 @@ import { PosterCard } from "@/components/chrome";
 export const Route = createFileRoute("/cara-kerja")({
   head: () => ({
     meta: [
-      { title: "Cara kerja ADIL — versi jujurnya" },
+      { title: "Cara kerja ADIL - versi jujurnya" },
       { name: "description", content: "Dari mana arsipnya, apa yang dihitung, apa yang belum bisa, kenapa skor bukan vonis, dan bagaimana privasimu dijaga." },
-      { property: "og:title", content: "Cara kerja ADIL — versi jujurnya" },
+      { property: "og:title", content: "Cara kerja ADIL - versi jujurnya" },
       { property: "og:description", content: "Penjelasan jujur cara ADIL menghitung kemiripan ide." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -337,15 +337,42 @@ export function matchVisualWithArsip(
       const hamming = calculateHammingDistance(userFeatures.dhash, poster.dhash);
       const dhashScore = Math.max(0, Number((1 - hamming / 32).toFixed(4)));
 
+      // Flatten layout jika tersimpan sebagai [[...]] (nested array dari Python)
+      const rawLayout = Array.isArray(poster.layout?.[0]) ? (poster.layout as unknown as number[][])[0] : poster.layout;
+      const hasLayout = Array.isArray(rawLayout) && rawLayout.length >= 16;
+
+      // Flatten color_hist jika tersimpan sebagai [[...]] (nested array dari Python)
+      const rawColor = Array.isArray(poster.color_hist?.[0]) ? (poster.color_hist as unknown as number[][])[0] : poster.color_hist;
+      const hasColor = Array.isArray(rawColor) && rawColor.length >= 16;
+
       // Layout Similarity (16x16) -> 0..1 (Pearson correlation)
-      const layoutScore = poster.layout
-        ? calculateLayoutSimilarity(userFeatures.layout, poster.layout)
+      const layoutScore = hasLayout
+        ? calculateLayoutSimilarity(userFeatures.layout, rawLayout as number[])
         : 0;
 
       // Color Histogram (64 bin) -> 0..1 (Histogram Intersection)
-      const colorScore = poster.color_hist
-        ? calculateHistogramIntersection(userFeatures.colorHist, poster.color_hist)
+      const colorScore = hasColor
+        ? calculateHistogramIntersection(userFeatures.colorHist, rawColor as number[])
         : 0;
+
+      // Bobot standar seimbang sesuai konfigurasi (dHash 40%, Layout 40%, Warna 20%)
+      let wHash = weightHash || 0.4;
+      let wLayout = weightLayout || 0.4;
+      let wColor = weightColor || 0.2;
+
+      if (!hasLayout && !hasColor) {
+        wHash = 1.0;
+        wLayout = 0;
+        wColor = 0;
+      } else if (!hasLayout) {
+        wHash = 0.6;
+        wLayout = 0;
+        wColor = 0.4;
+      } else if (!hasColor) {
+        wHash = 0.5;
+        wLayout = 0.5;
+        wColor = 0;
+      }
 
       let ocrScore = 0;
       let sharedWords: string[] = [];
@@ -357,18 +384,29 @@ export function matchVisualWithArsip(
         }
       }
 
-      // Gabungkan skor visual (dHash 40% + Layout 40% + Warna 20%)
+      // Gabungkan skor visual
       let combinedScore = Number(
-        (
-          weightHash * dhashScore +
-          weightLayout * layoutScore +
-          weightColor * colorScore
+        Math.min(
+          1,
+          Math.max(
+            0,
+            wHash * dhashScore +
+            wLayout * layoutScore +
+            wColor * colorScore
+          )
         ).toFixed(4)
       );
 
-      // Jika ada kesamaan teks OCR di kedua poster, pertimbangkan sedikit bobot OCR
-      if (ocrScore > 0) {
-        combinedScore = Number((0.85 * combinedScore + 0.15 * ocrScore).toFixed(4));
+      // Jika gambar identik (dHash persis sama & layout/warna konsisten sangat tinggi)
+      if (hamming === 0 && layoutScore >= 0.95 && colorScore >= 0.95) {
+        combinedScore = 1.0;
+      } else if (hamming <= 2 && layoutScore >= 0.98 && colorScore >= 0.98) {
+        combinedScore = 1.0;
+      }
+
+      // Jika ada kesamaan teks OCR di kedua poster, pertimbangkan sedikit bobot OCR (jika belum 100%)
+      if (ocrScore > 0 && combinedScore < 1.0) {
+        combinedScore = Number(Math.min(1, 0.85 * combinedScore + 0.15 * ocrScore).toFixed(4));
       }
 
       return {

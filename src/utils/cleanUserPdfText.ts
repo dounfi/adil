@@ -24,7 +24,7 @@ export function getGeminiApiKeys(): string[] {
         // 1. Cek VITE_GEMINI_API_KEYS (daftar dipisah koma)
         const envMulti =
             typeof import.meta !== 'undefined' && import.meta.env
-                ? import.meta.env.VITE_GEMINI_API_KEYS
+                ? (import.meta.env as Record<string, string>)['VITE_GEMINI_API_KEYS']
                 : undefined;
         if (typeof envMulti === 'string' && envMulti.trim()) {
             envMulti.split(',').forEach((k) => {
@@ -36,7 +36,7 @@ export function getGeminiApiKeys(): string[] {
         // 2. Cek VITE_GEMINI_API_KEY (kunci utama)
         const envSingle =
             typeof import.meta !== 'undefined' && import.meta.env
-                ? import.meta.env.VITE_GEMINI_API_KEY
+                ? (import.meta.env as Record<string, string>)['VITE_GEMINI_API_KEY']
                 : undefined;
         if (typeof envSingle === 'string' && envSingle.trim()) {
             const trimmed = envSingle.trim();
@@ -45,14 +45,14 @@ export function getGeminiApiKeys(): string[] {
 
         // 3. Fallback jika berjalan di lingkungan Node.js (misal test / SSR)
         if (typeof process !== 'undefined' && process.env) {
-            const nodeMulti = process.env.VITE_GEMINI_API_KEYS || process.env.GEMINI_API_KEYS;
+            const nodeMulti = process.env['VITE_GEMINI_API_KEYS'] || process.env['GEMINI_API_KEYS'];
             if (nodeMulti) {
                 nodeMulti.split(',').forEach((k) => {
                     const trimmed = k.trim();
                     if (trimmed && !keys.includes(trimmed)) keys.push(trimmed);
                 });
             }
-            const nodeSingle = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+            const nodeSingle = process.env['VITE_GEMINI_API_KEY'] || process.env['GEMINI_API_KEY'];
             if (nodeSingle && !keys.includes(nodeSingle.trim())) {
                 keys.push(nodeSingle.trim());
             }
@@ -153,12 +153,13 @@ ${slicedRawText}
     // Looping fallback antar API Key (seperti referensi Python user)
     for (let keyIdx = 0; keyIdx < apiKeys.length; keyIdx++) {
         const key = apiKeys[keyIdx];
+        if (!key) continue;
 
         // Coba model yang tersedia
         for (const model of GEMINI_MODELS) {
             try {
                 if (onStatusUpdate) {
-                    onStatusUpdate(`Mengekstrak ide inti via Gemini AI (Key #${keyIdx + 1})...`);
+                    onStatusUpdate("Mengekstrak dan memproses ide inti dokumen...");
                 }
 
                 const aiResponse = await callGeminiApi(key, model, prompt);
@@ -263,7 +264,7 @@ export function extractTitleFromGeminiText(aiText: string): string | null {
     const match = aiText.match(/(?:Judul & Solusi Utama|Judul Proposal|Judul Solusi|Judul)\s*:\s*([^\n\r]+)/i);
     if (match && match[1]) {
         const raw = match[1].trim().replace(/^[-*•]\s*/, '');
-        const firstSentence = raw.split(/[.?!]/)[0].trim();
+        const firstSentence = (raw.split(/[.?!]/)[0] ?? "").trim();
         if (firstSentence.length >= 5 && firstSentence.length <= 150) {
             return firstSentence;
         }

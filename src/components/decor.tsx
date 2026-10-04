@@ -76,36 +76,34 @@ export function SelectionBox({ children, className }: { children: ReactNode; cla
   );
 }
 
-/* ---------- CommentBubble: gelembung komentar ala Figma ---------- */
+/* ---------- CommentBubble: gelembung info praktis ---------- */
 export function CommentBubble({
   emoji,
   text,
   className,
 }: {
-  emoji: string;
+  emoji?: string;
   text: string;
   className?: string;
 }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 rounded-2xl rounded-bl-sm border border-border bg-card px-3 py-2 text-xs font-semibold text-foreground shadow-poster",
+        "inline-flex items-center gap-2 rounded-2xl rounded-bl-sm border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm",
         className,
       )}
     >
-      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-adil-yellow text-sm">{emoji}</span>
+      {emoji && (
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-adil-yellow/30 text-xs">{emoji}</span>
+      )}
       {text}
     </span>
   );
 }
 
-/* ---------- FrameLabel: label nama frame Figma ---------- */
-export function FrameLabel({ children, className }: { children: ReactNode; className?: string }) {
-  return (
-    <p className={cn("mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground", className)}>
-      {children}
-    </p>
-  );
+/* ---------- FrameLabel: dinonaktifkan agar antarmuka bersih dari label wireframe ---------- */
+export function FrameLabel(_props: { children?: ReactNode; className?: string }) {
+  return null;
 }
 
 /* ---------- Mascot: blob kecil dengan 2 mata ---------- */

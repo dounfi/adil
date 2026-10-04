@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { ExternalLink, Search, Palette } from "lucide-react";
-import { FrameLabel, Mascot, StickerLabel, CommentBubble } from "@/components/decor";
+import { ExternalLink, Search, Palette, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { Mascot, StickerLabel } from "@/components/decor";
 import { PosterCard, ScoreBar } from "@/components/chrome";
 import { EmptyState } from "@/components/empty";
 import { getLastResult } from "@/lib/scoring";
@@ -9,9 +8,9 @@ import { getLastResult } from "@/lib/scoring";
 export const Route = createFileRoute("/hasil/")({
   head: () => ({
     meta: [
-      { title: "Hasil cek ide — ADIL" },
+      { title: "Hasil cek ide - ADIL" },
       { name: "description", content: "Lihat karya yang mirip dengan idemu, lengkap dengan skor teks dan konsep. Bukti, bukan vonis." },
-      { property: "og:title", content: "Hasil cek ide — ADIL" },
+      { property: "og:title", content: "Hasil cek ide - ADIL" },
       { property: "og:description", content: "Skor kemiripan teks dan konsep, lengkap dengan alasannya." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -29,7 +28,6 @@ const BANDS = {
 
 function HasilPage() {
   const result = getLastResult();
-  const [showWhy, setShowWhy] = useState(false);
 
   if (!result) {
     return (
@@ -48,20 +46,16 @@ function HasilPage() {
   const nextSteps =
     result.band === "rendah"
       ? [
-        { label: "Catat ideku", to: "/catat" as const },
         { label: "Cek ide lain", to: "/cek" as const },
       ]
       : [
         ...(top ? [{ label: "Lihat bedanya", to: "/hasil/$workId" as const, params: { workId: top.work.id } }] : []),
         { label: "Ubah dan cek lagi", to: "/cek" as const },
-        { label: "Catat ideku", to: "/catat" as const },
       ];
 
   return (
     <main className="bg-canvas-grid py-16">
       <div className="mx-auto max-w-5xl px-4">
-        <FrameLabel>Hasil / {isPoster ? "Poster Visual" : "Ringkasan"}</FrameLabel>
-
         {/* ── BANNER HASIL ── */}
         <div className={`relative rounded-3xl p-8 shadow-poster-lg md:p-12 ${band.bg}`} style={{ transform: "rotate(-0.6deg)" }}>
           <Mascot color={band.mascot} mood={band.mood} className="absolute -top-6 right-8" />
@@ -72,7 +66,7 @@ function HasilPage() {
           <p className="mt-3 max-w-xl text-lg opacity-90">{band.sub}</p>
           {isPoster && (
             <p className="mt-2 text-sm opacity-70">
-              Poster dicek dari 4 sisi: kemiripan bentuk visual (dHash), tata letak, palet warna, dan teks terbaca (OCR).
+              Poster dianalisis dari bentuk visual, komposisi tata letak, palet warna, dan teks desain.
             </p>
           )}
         </div>
@@ -86,10 +80,10 @@ function HasilPage() {
                   Pratinjau Visual Berdampingan
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  (Dihitung 100% di browser — privat & aman)
+                  (Privat & aman di browser)
                 </span>
               </div>
-              {top && (
+              {top && (top.combined > 0.15) && (
                 <Link
                   to="/hasil/$workId"
                   params={{ workId: top.work.id }}
@@ -100,41 +94,97 @@ function HasilPage() {
               )}
             </div>
 
-            <div className="mt-6 grid items-center gap-6 sm:grid-cols-[1fr_auto_1fr]">
-              {/* Kolom Kiri: Poster Pengguna */}
-              <div className="flex flex-col items-center gap-2 text-center">
-                <div className="relative aspect-[3/4] max-h-56 w-full max-w-[190px] overflow-hidden rounded-xl border-2 border-border bg-black/5 shadow-sm">
-                  <img
-                    src={result.userPosterUrl}
-                    alt="Poster Pengguna"
-                    className="h-full w-full object-contain"
-                  />
+            {/* Kalau aman (< 15%) - tampilkan 50-50 grid: kiri gambar poster, kanan keterangan profesional tanpa emoji */}
+            {(!top || top.combined <= 0.15) ? (
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+                {/* Kolom Kiri: Poster Pengguna (50%) */}
+                <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-border bg-muted/20 p-5 text-center">
+                  <div className="relative aspect-[3/4] w-full max-h-80 overflow-hidden rounded-xl border border-border bg-black/5 shadow-sm">
+                    <img
+                      src={result.userPosterUrl}
+                      alt="Poster Pengguna"
+                      className="h-full w-full object-contain"
+                    />
+                  </div>
+                  <div className="mt-3">
+                    <p className="font-display text-sm font-bold">Poster Kamu</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-display text-xs font-bold">Poster Kamu</p>
-                  {result.visualFeatures?.dhash && (
-                    <p className="font-mono text-[10px] text-muted-foreground">
-                      dHash: {result.visualFeatures.dhash}
+
+                {/* Kolom Kanan: Keterangan Tanpa Emoji (50%) */}
+                <div className="flex flex-col justify-center rounded-2xl border-2 border-border bg-card p-6 md:p-8 text-left">
+                  <div className="inline-flex w-fit items-center gap-1.5 rounded-full border border-adil-green/30 bg-adil-green/10 px-3 py-1 font-display text-xs font-bold text-adil-green">
+                    <ShieldCheck className="h-4 w-4" />
+                    <span>Karya Visual Orisinal</span>
+                  </div>
+
+                  <h3 className="mt-4 font-display text-xl font-black text-foreground md:text-2xl">
+                    Tidak ada karya yang mirip di arsip
+                  </h3>
+
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    Skor kemiripan visual postermu terhadap seluruh karya di basis data arsip berada di bawah 15% (tingkat kesamaan sangat rendah).
+                  </p>
+
+                  <div className="mt-6 space-y-2 rounded-xl border border-border bg-muted/30 p-4 text-xs text-muted-foreground">
+                    <div className="flex items-center justify-between font-bold text-foreground">
+                      <span>Status Deteksi Visual</span>
+                      <span className="text-adil-green font-semibold">Aman / Tidak Ada Indikasi</span>
+                    </div>
+                    <p className="leading-relaxed">
+                      Komparasi bentuk visual, tata letak bidang, dan spektrum warna tidak menemukan kesamaan signifikan dengan karya poster lain di arsip lomba.
                     </p>
-                  )}
+                  </div>
                 </div>
               </div>
-
-              {/* VS Badge */}
-              <div className="flex flex-col items-center justify-center">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-muted font-display text-xs font-black text-muted-foreground shadow-sm">
-                  VS
+            ) : (
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch relative">
+                {/* Floating VS Badge di tengah desktop */}
+                <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 hidden md:flex flex-col items-center">
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-full font-display text-xs font-black shadow-md border-2 border-background ${
+                    top.combined >= 0.6 ? 'bg-adil-red text-white' :
+                    top.combined >= 0.35 ? 'bg-adil-yellow text-adil-ink' :
+                    'bg-adil-blue text-white'
+                  }`}>
+                    VS
+                  </div>
+                  <span className={`mt-1.5 rounded-full bg-card px-3 py-0.5 font-display text-xs font-black shadow-sm border border-border ${
+                    top.combined >= 0.6 ? 'text-adil-red' :
+                    top.combined >= 0.35 ? 'text-amber-600' :
+                    'text-adil-blue'
+                  }`}>
+                    {Math.round(top.combined * 100)}% mirip
+                  </span>
                 </div>
-                <span className="mt-2 font-display text-sm font-extrabold text-adil-blue">
-                  {Math.round((top?.combined ?? 0) * 100)}%
-                </span>
-                <span className="text-[10px] text-muted-foreground">mirip</span>
-              </div>
 
-              {/* Kolom Kanan: Arsip Terdekat */}
-              {top ? (
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <div className="relative flex aspect-[3/4] max-h-56 w-full max-w-[190px] flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-border bg-muted/40 p-3 text-center shadow-sm">
+                {/* Kolom Kiri: Poster Pengguna (50%) */}
+                <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-border bg-card p-5 text-center">
+                  <div className="relative aspect-[3/4] w-full max-h-80 overflow-hidden rounded-xl border border-border bg-black/5 shadow-sm">
+                    <img
+                      src={result.userPosterUrl}
+                      alt="Poster Pengguna"
+                      className="h-full w-full object-contain"
+                    />
+                  </div>
+                  <div className="mt-3">
+                    <p className="font-display text-sm font-bold">Poster Kamu</p>
+                  </div>
+                </div>
+
+                {/* Mobile VS Badge */}
+                <div className="flex md:hidden flex-col items-center justify-center py-1">
+                  <span className={`rounded-full px-3 py-1 font-display text-xs font-black shadow-sm border border-border ${
+                    top.combined >= 0.6 ? 'bg-adil-red/15 text-adil-red' :
+                    top.combined >= 0.35 ? 'bg-adil-yellow/30 text-adil-ink' :
+                    'bg-muted text-muted-foreground'
+                  }`}>
+                    VS · {Math.round(top.combined * 100)}% mirip
+                  </span>
+                </div>
+
+                {/* Kolom Kanan: Arsip Terdekat (50%) */}
+                <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-border bg-card p-5 text-center">
+                  <div className="relative flex aspect-[3/4] w-full max-h-80 flex-col items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40 p-2 shadow-sm">
                     {top.work.posterUrl ? (
                       <img
                         src={top.work.posterUrl}
@@ -143,106 +193,75 @@ function HasilPage() {
                         className="h-full w-full object-contain"
                       />
                     ) : (
-                      <div className="flex flex-col items-center justify-center gap-2">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adil-blue/10 text-adil-blue">
-                          <Palette className="h-5 w-5" />
+                      <div className="flex flex-col items-center justify-center gap-2 p-6">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-adil-blue/10 text-adil-blue">
+                          <Palette className="h-6 w-6" />
                         </div>
                         <p className="line-clamp-2 font-display text-xs font-bold">{top.work.title}</p>
                       </div>
                     )}
                   </div>
-                  <div>
-                    <p className="line-clamp-1 max-w-[200px] font-display text-xs font-bold">
+                  <div className="mt-3 w-full px-2">
+                    <p className="line-clamp-1 font-display text-sm font-bold">
                       {top.work.title}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">
-                      Hamming: {top.poster?.hammingDistance ?? "?"} bit · {top.work.competition}
+                    <p className="text-xs text-muted-foreground">
+                      {top.work.competition}
                     </p>
                   </div>
                 </div>
-              ) : null}
-            </div>
+              </div>
+            )}
           </div>
         )}
 
         {/* ── GRID SKOR + LANGKAH ── */}
         <div className="mt-10 grid gap-8 md:grid-cols-[1.2fr_1fr] print:grid-cols-1">
           <PosterCard rotate={0.5} className="space-y-6">
+            <h2 className="font-display text-xl font-extrabold">
+              {isPoster ? "Indikator Visual" : "Indikator Kesamaan"}
+            </h2>
             {isPoster ? (
               <>
                 <ScoreBar
-                  label="Kemiripan sidik visual (dHash)"
-                  hint={`Jarak Hamming: ${result.topHamming ?? "?"} bit — 0-4 hampir identik, 5-10 sangat mirip`}
+                  label="Kemiripan bentuk visual"
+                  hint="Analisis kesamaan bentuk dan struktur visual utama"
                   value={result.topHash ?? 0}
                   color="blue"
                 />
                 <ScoreBar
-                  label="Kemiripan tata letak (16×16)"
-                  hint="Korelasi Pearson pola terang-gelap. Makin mendekati 1 = susunan elemen poster serupa"
+                  label="Kemiripan tata letak"
+                  hint="Analisis susunan elemen grafis dan penempatan objek"
                   value={result.topLayout ?? 0}
                   color="green"
                 />
                 <ScoreBar
                   label="Kemiripan palet warna"
-                  hint="Histogram Intersection 64 bin. Makin mendekati 1 = palet warna hampir sama"
+                  hint="Analisis keselarasan spektrum dan harmoni warna"
                   value={result.topColor ?? 0}
                   color="yellow"
                 />
                 {(result.topOcr ?? 0) > 0 && (
                   <ScoreBar
                     label="Kesamaan teks terbaca (OCR)"
-                    hint="Jaccard similarity antara kata-kata yang bisa dibaca di kedua poster"
+                    hint="Kata-kata yang terbaca sama pada kedua poster"
                     value={result.topOcr ?? 0}
                     color="blue"
                   />
                 )}
-                <div className="rounded-2xl bg-muted p-4 text-sm">
-                  <p className="font-bold">Skor gabungan = dHash × 0,4 + Layout × 0,4 + Warna × 0,2</p>
-                  <p className="mt-1 text-muted-foreground">
-                    = {Math.round((result.topHash ?? 0) * 100)}% × 0,4 + {Math.round((result.topLayout ?? 0) * 100)}% × 0,4 + {Math.round((result.topColor ?? 0) * 100)}% × 0,2
-                    {" "}= <strong className="text-foreground">{Math.round((top?.combined ?? 0) * 100)}%</strong>
-                  </p>
-                </div>
               </>
             ) : (
               <>
-                <ScoreBar label="Kesamaan kata" hint="Ada berapa kata yang persis sama" value={result.topText} color="blue" />
-                <ScoreBar label="Kesamaan topik" hint="Apakah bahas bidang yang sama" value={result.topConcept} color="green" />
+                <ScoreBar label="Kesamaan kata" hint="Kata-kata spesifik yang serupa dengan arsip" value={result.topText} color="blue" />
+                <ScoreBar label="Kesamaan topik" hint="Kesesuaian ranah dan bidang bahasan" value={result.topConcept} color="green" />
                 {result.topSemantic !== undefined && (
-                  <ScoreBar label="Kesamaan arti" hint="Walau beda kata, artinya mirip nggak" value={result.topSemantic} color="yellow" />
+                  <ScoreBar label="Kesamaan arti" hint="Makna konteks walau menggunakan susunan kata berbeda" value={result.topSemantic} color="yellow" />
                 )}
-                <div className="rounded-2xl bg-muted p-4 text-sm">
-                  <p className="font-bold">
-                    {result.topSemantic !== undefined
-                      ? "Skor gabungan = kata × 0,35 + topik × 0,35 + arti × 0,3"
-                      : "Skor gabungan = kata × 0,5 + topik × 0,5"}
-                  </p>
-                  <p className="mt-1 text-muted-foreground">
-                    {result.topSemantic !== undefined ? (
-                      <>= {Math.round(result.topText * 100)}% × 0,35 + {Math.round(result.topConcept * 100)}% × 0,35 + {Math.round(result.topSemantic * 100)}% × 0,3 ={" "}
-                        <strong className="text-foreground">{Math.round((top?.combined ?? 0) * 100)}%</strong></>
-                    ) : (
-                      <>= {Math.round(result.topText * 100)}% × 0,5 + {Math.round(result.topConcept * 100)}% × 0,5 ={" "}
-                        <strong className="text-foreground">{Math.round((top?.combined ?? 0) * 100)}%</strong></>
-                    )}
-                  </p>
-                </div>
               </>
-            )}
-            <button onClick={() => setShowWhy(!showWhy)} className="text-sm font-bold text-adil-blue underline-offset-4 hover:underline" aria-expanded={showWhy}>
-              Kok bisa segini?
-            </button>
-            {showWhy && (
-              <p className="rounded-2xl border-2 border-adil-blue/30 bg-adil-blue/5 p-4 text-sm">
-                {isPoster
-                  ? "Skor ini bukan vonis plagiat visual. Ini ukuran seberapa mirip bentuk, susun, dan warna postermu dibanding arsip. Poster dengan tema sama wajar punya skor tata letak mirip."
-                  : "Skor ini bukan peluang kamu dianggap plagiat. Ini cuma ukuran seberapa banyak kata dan konsep yang beririsan."}
-              </p>
             )}
           </PosterCard>
 
           <PosterCard rotate={-1} className="relative print:hidden">
-            <CommentBubble emoji="🙂" text="Ini bukan vonis ya" className="absolute -right-3 -top-4 rotate-3" />
             <h2 className="font-display text-2xl font-extrabold">Langkah selanjutnya</h2>
             <div className="mt-5 flex flex-col gap-3">
               {nextSteps.map((s) =>
@@ -258,6 +277,10 @@ function HasilPage() {
               <a href={google} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full bg-adil-yellow px-5 py-3 font-bold text-adil-ink transition-transform hover:scale-[1.03]">
                 <Search className="h-4 w-4" /> Cari juga di Google <ExternalLink className="h-3.5 w-3.5" />
               </a>
+            </div>
+            <div className="mt-5 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+              <CheckCircle2 className="h-3.5 w-3.5 text-adil-green" />
+              <span>Hasil analisis bersifat indikatif untuk evaluasi mandiri</span>
             </div>
           </PosterCard>
         </div>

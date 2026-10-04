@@ -11,8 +11,8 @@ export const Route = createFileRoute("/arsip/$id")({
     return { work };
   },
   head: ({ loaderData }) => {
-    if (!loaderData) return { meta: [{ title: "Karya tidak ditemukan — ADIL" }, { name: "robots", content: "noindex" }] };
-    const t = `${loaderData.work.title} — Arsip ADIL`;
+    if (!loaderData) return { meta: [{ title: "Karya tidak ditemukan - ADIL" }, { name: "robots", content: "noindex" }] };
+    const t = `${loaderData.work.title} - Arsip ADIL`;
     return {
       meta: [
         { title: t },

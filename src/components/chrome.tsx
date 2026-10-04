@@ -19,7 +19,6 @@ export function Navbar() {
   const links = [
     { to: "/cek", label: "Cek Ide" },
     { to: "/arsip", label: "Arsip" },
-    { to: "/catat", label: "Catat Ide" },
     { to: "/cara-kerja", label: "Cara Kerja" },
   ] as const;
   return (
@@ -64,8 +63,6 @@ export function Footer() {
           <div className="flex flex-col gap-2 text-sm font-semibold">
             <Link to="/cek" className="hover:text-adil-blue">Cek Ide</Link>
             <Link to="/arsip" className="hover:text-adil-blue">Arsip</Link>
-            <Link to="/catat" className="hover:text-adil-blue">Catat Ide</Link>
-            <Link to="/verifikasi" className="hover:text-adil-blue">Verifikasi</Link>
             <Link to="/cara-kerja" className="hover:text-adil-blue">Cara Kerja</Link>
           </div>
           <div className="flex flex-col items-end gap-4">
@@ -89,7 +86,7 @@ export function ScoreBar({
   label: string;
   hint: string;
   value: number; // 0..1
-  color: "blue" | "green";
+  color: "blue" | "green" | "yellow";
 }) {
   const pct = Math.round(value * 100);
   return (
@@ -101,7 +98,10 @@ export function ScoreBar({
       <p className="text-xs text-muted-foreground">{hint}</p>
       <div className="mt-2 h-4 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={label}>
         <div
-          className={cn("h-full rounded-full transition-all duration-700", color === "blue" ? "bg-adil-blue" : "bg-adil-green")}
+          className={cn(
+            "h-full rounded-full transition-all duration-700",
+            color === "blue" ? "bg-adil-blue" : color === "green" ? "bg-adil-green" : "bg-adil-yellow"
+          )}
           style={{ width: `${pct}%` }}
         />
       </div>

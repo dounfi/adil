@@ -22,9 +22,9 @@ import { WORKS } from "@/lib/works";
 export const Route = createFileRoute("/hasil/$workId")({
   head: () => ({
     meta: [
-      { title: "Perbandingan karya — ADIL" },
+      { title: "Perbandingan karya - ADIL" },
       { name: "description", content: "Bandingkan karyamu dengan karya pembanding: fitur visual, tata letak, warna, dan teks. Bukti, bukan vonis." },
-      { property: "og:title", content: "Perbandingan karya — ADIL" },
+      { property: "og:title", content: "Perbandingan karya - ADIL" },
       { property: "og:description", content: "Perbandingan berdampingan secara detail dan objektif." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -33,6 +33,23 @@ export const Route = createFileRoute("/hasil/$workId")({
   }),
   component: ComparePage,
 });
+
+function cleanOcrDisplay(rawText?: string): string {
+  if (!rawText) return "";
+  return rawText
+    .replace(/[—–]/g, "-")
+    .replace(/[|~^$*#_]/g, " ")
+    .split("\n")
+    .map((line) => {
+      const trimmed = line.trim();
+      if (trimmed.length <= 2 && !/^[a-zA-Z0-9]{2}$/.test(trimmed)) return "";
+      const alphaCount = (trimmed.match(/[a-zA-Z0-9]/g) || []).length;
+      if (alphaCount < 3 && trimmed.length > 4) return "";
+      return trimmed.replace(/[-.]{2,}/g, " ").replace(/\s+/g, " ").trim();
+    })
+    .filter((line) => line.length > 0)
+    .join("\n");
+}
 
 function HighlightedText({ text, words }: { text: string; words: Set<string> }) {
   const parts = text.split(/(\s+)/);
@@ -52,7 +69,7 @@ function HighlightedText({ text, words }: { text: string; words: Set<string> }) 
   );
 }
 
-function PosterImage({ src, alt, title }: { src?: string; alt: string; title: string }) {
+function PosterImage({ src, alt, title }: { src?: string | undefined; alt: string; title: string }) {
   const [error, setError] = useState(false);
 
   if (!src || error) {
@@ -110,12 +127,15 @@ function ComparePage() {
 
     const hammingStatus =
       hamming <= 4
-        ? { label: "Hampir Identik", color: "bg-adil-red text-white", desc: "Jarak Hamming 0-4 bit menandakan sidik visual hampir sama persis (potensi turunan/modifikasi langsung)." }
+        ? { label: "Hampir Identik", color: "bg-adil-red text-white" }
         : hamming <= 10
-        ? { label: "Sangat Mirip", color: "bg-adil-yellow text-adil-ink", desc: "Jarak Hamming 5-10 bit menandakan struktur bentuk dan pola gradien poster memiliki kemiripan tinggi." }
+        ? { label: "Sangat Mirip", color: "bg-adil-yellow text-adil-ink" }
         : hamming <= 20
-        ? { label: "Kemiripan Sedang", color: "bg-adil-blue text-white", desc: "Beberapa fitur bentuk mirip, namun secara keseluruhan memiliki variasi yang cukup jelas." }
-        : { label: "Berbeda Struktural", color: "bg-adil-green text-white", desc: "Sidik jari visual berbeda jauh. Karakteristik visual utama tidak beririsan." };
+        ? { label: "Kemiripan Sedang", color: "bg-adil-blue text-white" }
+        : { label: "Berbeda Struktural", color: "bg-adil-green text-white" };
+
+    const userOcrClean = cleanOcrDisplay(result.query.extractedText);
+    const arsipOcrClean = cleanOcrDisplay(poster?.ocrTeksArsip);
 
     return (
       <main className="bg-canvas-grid py-16">
@@ -125,7 +145,6 @@ function ComparePage() {
           </Link>
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            <FrameLabel>Perbandingan Visual Poster</FrameLabel>
             <span className={`rounded-full px-3 py-1 font-display text-xs font-extrabold uppercase ${hammingStatus.color}`}>
               {hammingStatus.label} ({combinedPct}%)
             </span>
@@ -135,7 +154,7 @@ function ComparePage() {
             Bandingkan Visual Berdampingan
           </h1>
           <p className="mt-2 max-w-3xl text-base text-muted-foreground">
-            Sistem menganalisis 4 dimensi visual: <strong>sidik jari perseptual (dHash)</strong>, <strong>tata letak 16×16</strong>, <strong>spektrum palet warna</strong>, dan <strong>teks terbaca (OCR)</strong>.
+            Perbandingan objektif dari bentuk visual, tata letak objek, spektrum palet warna, dan teks desain.
           </p>
 
           <div className="mt-6 rounded-2xl bg-adil-ink px-5 py-3 text-sm font-semibold text-white">
@@ -148,11 +167,6 @@ function ComparePage() {
             <PosterCard rotate={-0.6} className="flex flex-col gap-5">
               <div className="flex items-center justify-between">
                 <StickerLabel color="blue" rotate={-2}>Poster Kamu</StickerLabel>
-                {result.visualFeatures?.dhash && (
-                  <span className="font-mono text-xs font-bold text-muted-foreground">
-                    dHash: {result.visualFeatures.dhash}
-                  </span>
-                )}
               </div>
 
               <PosterImage
@@ -163,22 +177,23 @@ function ComparePage() {
 
               <div>
                 <h2 className="font-display text-lg font-extrabold">
-                  {result.query.title || result.query.fileName || "Karya Poster yang Dicek"}
+                  {result.query.title || result.query.fileName || "Poster Kamu"}
                 </h2>
-                {result.query.description && (
-                  <p className="mt-1 text-sm text-muted-foreground">{result.query.description}</p>
-                )}
+                <p className="mt-1 text-xs text-muted-foreground">Karya yang kamu unggah untuk pengecekan</p>
               </div>
 
               {/* TEKS OCR POSTER KAMU */}
-              <div className="rounded-xl border border-border bg-muted/30 p-4">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  <FileText className="h-3.5 w-3.5 text-adil-blue" />
-                  <span>Teks Terbaca pada Postermu (OCR)</span>
+              <div className="rounded-xl border border-border bg-muted/20 p-4">
+                <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-3.5 w-3.5 text-adil-blue" />
+                    <span>Teks Terdeteksi pada Postermu</span>
+                  </div>
+                  <span className="text-[11px] font-normal normal-case text-muted-foreground">Ekstraksi OCR</span>
                 </div>
-                {result.query.extractedText && result.query.extractedText.trim().length > 0 ? (
-                  <div className="mt-2.5 max-h-36 overflow-y-auto text-xs leading-relaxed text-muted-foreground">
-                    <HighlightedText text={result.query.extractedText} words={shared} />
+                {userOcrClean ? (
+                  <div className="mt-3 max-h-40 overflow-y-auto rounded-lg bg-card/60 p-3 text-xs leading-relaxed text-foreground shadow-inner">
+                    <HighlightedText text={userOcrClean} words={shared} />
                   </div>
                 ) : (
                   <p className="mt-2 text-xs italic text-muted-foreground">
@@ -192,15 +207,10 @@ function ComparePage() {
             <PosterCard rotate={0.6} className="flex flex-col gap-5">
               <div className="flex items-center justify-between">
                 <StickerLabel color="red" rotate={2}>Poster Arsip Pembanding</StickerLabel>
-                {poster?.dhash && (
-                  <span className="font-mono text-xs font-bold text-muted-foreground">
-                    dHash: {poster.dhash}
-                  </span>
-                )}
               </div>
 
               <PosterImage
-                src={poster?.gambar_url || work.posterUrl}
+                src={poster?.gambar_url || (work as any).posterUrl}
                 alt={work.title}
                 title={work.title}
               />
@@ -208,9 +218,9 @@ function ComparePage() {
               <div>
                 <div className="flex flex-wrap items-baseline gap-2">
                   <h2 className="font-display text-lg font-extrabold">{work.title}</h2>
-                  {work.rank && (
+                  {(work as any).rank && (
                     <span className="rounded-full bg-adil-yellow/20 px-2 py-0.5 font-display text-xs font-bold text-adil-ink">
-                      {work.rank}
+                      {(work as any).rank}
                     </span>
                   )}
                 </div>
@@ -230,18 +240,21 @@ function ComparePage() {
               </div>
 
               {/* TEKS OCR ARSIP */}
-              <div className="rounded-xl border border-border bg-muted/30 p-4">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  <FileText className="h-3.5 w-3.5 text-adil-red" />
-                  <span>Teks Terbaca pada Poster Arsip</span>
+              <div className="rounded-xl border border-border bg-muted/20 p-4">
+                <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-3.5 w-3.5 text-adil-red" />
+                    <span>Teks Terdeteksi pada Poster Arsip</span>
+                  </div>
+                  <span className="text-[11px] font-normal normal-case text-muted-foreground">Arsip Pemenang</span>
                 </div>
-                {poster?.ocrTeksArsip && poster.ocrTeksArsip.trim().length > 0 ? (
-                  <div className="mt-2.5 max-h-36 overflow-y-auto text-xs leading-relaxed text-muted-foreground">
-                    <HighlightedText text={poster.ocrTeksArsip} words={shared} />
+                {arsipOcrClean ? (
+                  <div className="mt-3 max-h-40 overflow-y-auto rounded-lg bg-card/60 p-3 text-xs leading-relaxed text-foreground shadow-inner">
+                    <HighlightedText text={arsipOcrClean} words={shared} />
                   </div>
                 ) : (
                   <p className="mt-2 text-xs italic text-muted-foreground">
-                    Arsip ini tidak memiliki teks OCR tercatat.
+                    Arsip ini tidak memiliki rekaman teks OCR.
                   </p>
                 )}
               </div>
@@ -251,14 +264,14 @@ function ComparePage() {
           {/* ── 4 DIMENSI FITUR VISUAL ── */}
           <div className="mt-12">
             <h2 className="font-display text-2xl font-extrabold md:text-3xl">
-              Rincian Analisis 4 Dimensi Visual
+              Dimensi Analisis Visual
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Berikut perhitungan matematis di balik skor kemiripan visual:
+              Perbandingan karakteristik visual antara kedua karya:
             </p>
 
             <div className="mt-6 grid gap-6 md:grid-cols-2">
-              {/* DIMENSI 1: dHash */}
+              {/* DIMENSI 1: BENTUK VISUAL */}
               <PosterCard rotate={-0.5} className="space-y-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2.5">
@@ -266,8 +279,8 @@ function ComparePage() {
                       <Fingerprint className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="font-display text-base font-extrabold">1. Sidik Jari Visual (dHash)</h3>
-                      <p className="text-xs text-muted-foreground">Bobot algoritma: 40%</p>
+                      <h3 className="font-display text-base font-extrabold">1. Bentuk & Struktur Visual</h3>
+                      <p className="text-xs text-muted-foreground">Analisis sidik visual perseptual</p>
                     </div>
                   </div>
                   <span className="font-display text-lg font-extrabold text-adil-blue">
@@ -276,30 +289,19 @@ function ComparePage() {
                 </div>
 
                 <ScoreBar
-                  label="Tingkat Kemiripan Hash"
-                  hint={`Jarak Hamming: ${hamming} bit dari 64 bit`}
+                  label="Kemiripan Bentuk & Struktur"
+                  hint="Kesamaan bentuk objek dan pola siluet utama"
                   value={dhashScore}
                   color="blue"
                 />
 
-                <div className="rounded-xl bg-muted/60 p-3.5 text-xs space-y-1.5">
-                  <div className="flex justify-between font-mono">
-                    <span className="text-muted-foreground">Hash Kamu:</span>
-                    <span className="font-bold text-foreground">{result.visualFeatures?.dhash || "-"}</span>
-                  </div>
-                  <div className="flex justify-between font-mono">
-                    <span className="text-muted-foreground">Hash Arsip:</span>
-                    <span className="font-bold text-foreground">{poster?.dhash || "-"}</span>
-                  </div>
-                  <div className="flex justify-between border-t border-border pt-1.5">
-                    <span className="text-muted-foreground">Perbedaan Bit:</span>
-                    <span className="font-bold text-adil-blue">{hamming} bit</span>
-                  </div>
+                <div className="rounded-xl bg-muted/40 p-3.5 text-xs text-muted-foreground leading-relaxed">
+                  {dhashScore >= 0.8
+                    ? "Struktur bentuk visual dan komposisi utama sangat serupa dengan arsip pembanding."
+                    : dhashScore >= 0.5
+                    ? "Terdapat beberapa kesamaan siluet dan objek visual, namun masih memiliki variasi."
+                    : "Struktur bentuk dan siluet visual berbeda jelas dari karya pembanding."}
                 </div>
-
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {hammingStatus.desc}
-                </p>
               </PosterCard>
 
               {/* DIMENSI 2: LAYOUT */}
@@ -310,8 +312,8 @@ function ComparePage() {
                       <LayoutGrid className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="font-display text-base font-extrabold">2. Tata Letak (16×16 Grid)</h3>
-                      <p className="text-xs text-muted-foreground">Bobot algoritma: 40%</p>
+                      <h3 className="font-display text-base font-extrabold">2. Tata Letak (Komposisi)</h3>
+                      <p className="text-xs text-muted-foreground">Analisis distribusi spasial elemen</p>
                     </div>
                   </div>
                   <span className="font-display text-lg font-extrabold text-adil-green">
@@ -320,23 +322,18 @@ function ComparePage() {
                 </div>
 
                 <ScoreBar
-                  label="Korelasi Tata Letak Spasial"
-                  hint="Korelasi Pearson 256 zona intensitas terang-gelap"
+                  label="Kesesuaian Tata Letak"
+                  hint="Kesamaan letak focal point dan blok konten"
                   value={layoutScore}
                   color="green"
                 />
 
-                <div className="rounded-xl bg-muted/60 p-3.5 text-xs">
-                  <p className="font-semibold text-foreground">
-                    {layoutScore >= 0.75
-                      ? "Pola komposisi sangat serupa."
-                      : layoutScore >= 0.5
-                      ? "Komposisi dan letak focal point mirip."
-                      : "Susunan elemen grafis dan teks berbeda secara signifikan."}
-                  </p>
-                  <p className="mt-1 text-muted-foreground leading-relaxed">
-                    Sistem membagi poster ke dalam 256 blok intensitas untuk mengukur apakah penempatan header, ilustrasi utama, dan footer berada di kuadran kanvas yang serupa.
-                  </p>
+                <div className="rounded-xl bg-muted/40 p-3.5 text-xs text-muted-foreground leading-relaxed">
+                  {layoutScore >= 0.75
+                    ? "Pola komposisi dan penempatan elemen grafis sangat serupa."
+                    : layoutScore >= 0.5
+                    ? "Komposisi dan letak focal point memiliki kemiripan."
+                    : "Susunan elemen grafis dan penataan teks berbeda secara signifikan."}
                 </div>
               </PosterCard>
 
@@ -349,7 +346,7 @@ function ComparePage() {
                     </div>
                     <div>
                       <h3 className="font-display text-base font-extrabold">3. Spektrum Palet Warna</h3>
-                      <p className="text-xs text-muted-foreground">Bobot algoritma: 20%</p>
+                      <p className="text-xs text-muted-foreground">Analisis proporsi dan keselarasan warna</p>
                     </div>
                   </div>
                   <span className="font-display text-lg font-extrabold text-amber-600">
@@ -358,23 +355,18 @@ function ComparePage() {
                 </div>
 
                 <ScoreBar
-                  label="Irisan Histogram Warna (64 Bin)"
-                  hint="Histogram Intersection proporsi sebaran RGB"
+                  label="Keselarasan Palet Warna"
+                  hint="Kemiripan pemilihan tema warna dominan"
                   value={colorScore}
                   color="yellow"
                 />
 
-                <div className="rounded-xl bg-muted/60 p-3.5 text-xs">
-                  <p className="font-semibold text-foreground">
-                    {colorScore >= 0.7
-                      ? "Palet warna dominan dan mood visual hampir serupa."
-                      : colorScore >= 0.4
-                      ? "Terdapat nuansa warna turunan yang sejenis."
-                      : "Skema warna kontras dan berbeda."}
-                  </p>
-                  <p className="mt-1 text-muted-foreground leading-relaxed">
-                    Menghitung distribusi 64 zona spektrum warna RGB untuk mendeteksi kesamaan pemilihan mood warna (misal: nuansa biru teknologi vs hijau lingkungan).
-                  </p>
+                <div className="rounded-xl bg-muted/40 p-3.5 text-xs text-muted-foreground leading-relaxed">
+                  {colorScore >= 0.7
+                    ? "Palet warna dominan dan nuansa visual hampir serupa."
+                    : colorScore >= 0.4
+                    ? "Terdapat nuansa warna turunan yang sejenis."
+                    : "Skema warna kontras dan berbeda."}
                 </div>
               </PosterCard>
 
@@ -386,8 +378,8 @@ function ComparePage() {
                       <FileText className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="font-display text-base font-extrabold">4. Kesamaan Teks Terbaca (OCR)</h3>
-                      <p className="text-xs text-muted-foreground">Jaccard token similarity</p>
+                      <h3 className="font-display text-base font-extrabold">4. Kesamaan Teks Terbaca</h3>
+                      <p className="text-xs text-muted-foreground">Pencocokan kata penting pada poster</p>
                     </div>
                   </div>
                   <span className="font-display text-lg font-extrabold text-indigo-600">
@@ -396,13 +388,13 @@ function ComparePage() {
                 </div>
 
                 <ScoreBar
-                  label="Irisan Kata Terbaca"
+                  label="Irisan Teks & Tipografi"
                   hint={`${match.sharedWords?.length ?? 0} kata beririsan terdeteksi`}
                   value={ocrScore}
                   color="blue"
                 />
 
-                <div className="rounded-xl bg-muted/60 p-3.5 text-xs">
+                <div className="rounded-xl bg-muted/40 p-3.5 text-xs">
                   {match.sharedWords && match.sharedWords.length > 0 ? (
                     <div>
                       <span className="font-semibold text-foreground">Kata beririsan di kedua poster:</span>
@@ -585,7 +577,7 @@ function ComparePage() {
             <h3 className="font-display text-2xl font-extrabold text-adil-ink">Kesimpulan: Bedanya di mana?</h3>
             {missing.length ? (
               <p className="mt-3 text-base leading-relaxed text-adil-ink">
-                Karya pembanding menargetkan konsep <strong>{missing.join(", ")}</strong> — hal yang nggak muncul di idemu. Kamu bisa tonjolkan pembeda kamu sendiri di bagian proposal agar tidak dianggap sama.
+                Karya pembanding menargetkan konsep <strong>{missing.join(", ")}</strong> - hal yang nggak muncul di idemu. Kamu bisa tonjolkan pembeda kamu sendiri di bagian proposal agar tidak dianggap sama.
               </p>
             ) : (
               <p className="mt-3 text-base leading-relaxed text-adil-ink">

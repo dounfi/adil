@@ -7,9 +7,9 @@ import { findRecord, type Record } from "@/lib/hash";
 export const Route = createFileRoute("/verifikasi")({
   head: () => ({
     meta: [
-      { title: "Verifikasi catatan ide — ADIL" },
+      { title: "Verifikasi catatan ide - ADIL" },
       { name: "description", content: "Masukkan kode verifikasi untuk mengecek kapan sebuah ide dicatat di ADIL." },
-      { property: "og:title", content: "Verifikasi catatan ide — ADIL" },
+      { property: "og:title", content: "Verifikasi catatan ide - ADIL" },
       { property: "og:description", content: "Cek kode verifikasi catatan ide." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

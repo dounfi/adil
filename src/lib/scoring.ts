@@ -102,12 +102,12 @@ export function checkIdea(title: string, description: string): CheckResult {
   return result;
 }
 
-// Penyimpanan hasil cek terakhir — hanya di memori RAM (mode privat), tidak ke localStorage/server.
+// Penyimpanan hasil cek terakhir - hanya di memori RAM (mode privat), tidak ke localStorage/server.
 let localLastResult: CheckResult | null = null;
 
 export function setLastResult(r: CheckResult | FullMatchResult) {
   if ("matchedPosters" in r) {
-    setLastMatchResult(r);
+    setLastMatchResult(r as any);
     localLastResult = {
       isPoster: r.isPoster,
       userPosterUrl: r.userPosterUrl,

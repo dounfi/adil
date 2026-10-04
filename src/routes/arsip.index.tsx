@@ -8,9 +8,9 @@ import { WORKS } from "@/lib/works";
 export const Route = createFileRoute("/arsip/")({
   head: () => ({
     meta: [
-      { title: "Arsip karya — ADIL" },
+      { title: "Arsip karya - ADIL" },
       { name: "description", content: "Jelajahi arsip karya lomba publik yang dipakai ADIL sebagai pembanding." },
-      { property: "og:title", content: "Arsip karya — ADIL" },
+      { property: "og:title", content: "Arsip karya - ADIL" },
       { property: "og:description", content: "Arsip karya lomba publik untuk pembanding ide." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

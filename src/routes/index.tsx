@@ -7,9 +7,9 @@ import { PosterCard } from "@/components/chrome";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "ADIL — Ide kamu beneran baru?" },
+      { title: "ADIL - Ide kamu beneran baru?" },
       { name: "description", content: "Cek dulu sebelum berminggu-minggu ngerjain. Tempel idemu, kami carikan yang mirip. Gratis, tanpa login." },
-      { property: "og:title", content: "ADIL — Ide kamu beneran baru?" },
+      { property: "og:title", content: "ADIL - Ide kamu beneran baru?" },
       { property: "og:description", content: "Tempel idemu, kami carikan yang mirip. Gratis, tanpa login." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -174,7 +174,7 @@ function Index() {
               return (
                 <animated.div style={style} key={card.id}>
                   <PosterCard rotate={card.rotate} className={card.className}>
-                    {card.bubble && <CommentBubble emoji="😮" text="Sempat ramai lho" className="absolute -right-3 -top-4 rotate-3" />}
+                    {card.bubble && <CommentBubble text="Sempat ramai" className="absolute -right-3 -top-4 rotate-3" />}
                     {card.icon}
                     <h3 className={`mt-3 font-display text-xl font-extrabold leading-snug ${card.className.includes("bg-adil-yellow") ? "text-adil-ink" : ""}`}>
                       {card.title}
@@ -254,7 +254,7 @@ function Index() {
               <ul className="mt-5 space-y-3 text-sm font-semibold text-white">
                 <li>✓ Cocokin teks + konsep inti</li>
                 <li>✓ Setiap angka ada alasan yang bisa diklik</li>
-                <li>✓ Bukti, bukan vonis — kamu yang mutusin</li>
+                <li>✓ Bukti, bukan vonis - kamu yang mutusin</li>
                 <li>✓ Mode privat nyala dari awal</li>
               </ul>
             </PosterCard>

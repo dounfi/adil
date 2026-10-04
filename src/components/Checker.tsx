@@ -18,7 +18,7 @@ interface CheckerProps {
 
 const LOADING_STEPS_DOKUMEN = [
   "Membaca berkas dokumen & mengekstrak konten...",
-  "Gemini AI menyaring dokumen & mengekstrak ide inti...",
+  "Menyaring dokumen & menganalisis ide inti...",
   "Mencocokkan kata, topik, & makna dengan arsip...",
 ];
 
@@ -325,10 +325,10 @@ export function Checker({ showInlineResults = false, onAnalysisComplete }: Check
                     </p>
                     {previewUrl && (
                       <div className="mt-3 flex flex-wrap justify-center gap-1.5">
-                        <span className="rounded-full bg-adil-blue/10 px-2.5 py-1 text-[11px] font-semibold text-adil-blue">⬛ dHash</span>
-                        <span className="rounded-full bg-adil-green/10 px-2.5 py-1 text-[11px] font-semibold text-adil-green">📐 Tata Letak</span>
-                        <span className="rounded-full bg-adil-yellow/20 px-2.5 py-1 text-[11px] font-semibold text-adil-ink">🎨 Palet Warna</span>
-                        <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">📝 OCR Teks</span>
+                        <span className="rounded-full bg-adil-blue/10 px-2.5 py-1 text-[11px] font-semibold text-adil-blue">Sidik Visual</span>
+                        <span className="rounded-full bg-adil-green/10 px-2.5 py-1 text-[11px] font-semibold text-adil-green">Tata Letak</span>
+                        <span className="rounded-full bg-adil-yellow/20 px-2.5 py-1 text-[11px] font-semibold text-adil-ink">Palet Warna</span>
+                        <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">Teks OCR</span>
                       </div>
                     )}
                     <p className="mt-3 text-xs font-semibold text-adil-blue underline underline-offset-2">

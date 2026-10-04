@@ -75,9 +75,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "ADIL — Analisis Duplikasi Karya Lomba" },
+      { title: "ADIL - Analisis Duplikasi Karya Lomba" },
       { name: "description", content: "Cek apakah ide lombamu sudah pernah dilombakan orang lain. Gratis, tanpa login, ide kamu nggak disimpan." },
-      { property: "og:title", content: "ADIL — Analisis Duplikasi Karya Lomba" },
+      { property: "og:title", content: "ADIL - Analisis Duplikasi Karya Lomba" },
       { property: "og:description", content: "Cek apakah ide lombamu sudah pernah dilombakan orang lain. Gratis, tanpa login." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
