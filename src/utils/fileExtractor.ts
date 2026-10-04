@@ -1,5 +1,6 @@
 import { extractTextFromPoster } from './ocrService';
 import mammoth from 'mammoth';
+import { cleanUserPdfText } from './cleanUserPdfText';
 
 /**
  * Universal File Extractor: Membaca teks dari berbagai format berkas langsung di browser pengguna.
@@ -48,7 +49,9 @@ export async function extractTextFromFile(
     if (onProgress) onProgress(50);
     const result = await mammoth.extractRawText({ arrayBuffer });
     if (onProgress) onProgress(100);
-    return (result.value || '').trim();
+    const rawDocx = (result.value || '').trim();
+    const cleaned = cleanUserPdfText(rawDocx);
+    return cleaned && cleaned.length > 20 ? cleaned : rawDocx;
   }
 
   // 4. JALUR DOKUMEN PDF (.pdf) -> PDF.js (Dynamic import untuk ketahanan browser & SSR)
@@ -94,7 +97,8 @@ export async function extractTextFromFile(
     }
 
     if (onProgress) onProgress(100);
-    return fullText.trim();
+    const cleaned = cleanUserPdfText(fullText);
+    return cleaned && cleaned.length > 20 ? cleaned : fullText.trim();
   }
 
   throw new Error('Format berkas belum didukung. Silakan gunakan PDF, DOCX, TXT, PNG, atau JPG.');

@@ -14,19 +14,28 @@ export interface Work {
 export const WORKS: Work[] = [
   {
     "id": "W001",
-    "title": "Aplikasi Klasifikasi Laporan Warga Berbasis AI",
+    "title": "Penugasan Otomatis Laporan Masyarakat pada Platform Cepat Respon Masyarakat Menggunakan Early Fusion Multimodal Transformer",
     "year": 2024,
     "competition": "Gemastik XVII 2024 - Penambangan Data",
     "institution": "Universitas Indonesia",
     "category": "APP",
-    "summary": "Sistem berbasis machine learning untuk mengelompokkan laporan pengaduan masyarakat secara otomatis guna mempercepat respon pemerintah setempat.",
+    "summary": "Model yang membaca teks dan gambar dari laporan warga di platform CRM Jakarta, lalu otomatis menentukan instansi yang harus menanganinya.",
     "keyphrases": [
-      "klasifikasi laporan",
-      "pengaduan warga",
-      "machine learning",
-      "respon pemerintah"
+      "lapor warga",
+      "tugas otomatis",
+      "teks",
+      "klasifikasi multimodal",
+      "platform crm",
+      "baca teks",
+      "crm jakarta",
+      "layan publik",
+      "model",
+      "tangan",
+      "baca",
+      "transformer",
+      "lapor masyarakat"
     ],
-    "sourceUrl": "https://gemastik.kemdikbud.go.id/karya-w001"
+    "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
   {
     "id": "W002",
@@ -39,10 +48,16 @@ export const WORKS: Work[] = [
     "keyphrases": [
       "tumor otak",
       "citra mri",
+      "deteksi tumor",
       "computer vision",
-      "cnn"
+      "convolutional neural network",
+      "cnn",
+      "radiologi",
+      "pindaian otak",
+      "machine learning kesehatan",
+      "deep learning"
     ],
-    "sourceUrl": "https://pimnas36.id/karya-w002"
+    "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
   {
     "id": "W003",
@@ -56,7 +71,12 @@ export const WORKS: Work[] = [
       "kerusakan bencana",
       "citra satelit",
       "computer vision",
-      "ViT"
+      "vision transformer",
+      "ViT",
+      "klasifikasi kerusakan",
+      "bencana alam",
+      "penilaian wilayah",
+      "penginderaan jauh"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -73,7 +93,13 @@ export const WORKS: Work[] = [
       "klasifikasi teks",
       "JAKI",
       "transformer",
-      "pembelajaran berkelanjutan"
+      "pembelajaran berkelanjutan",
+      "layanan publik",
+      "pengaduan warga",
+      "platform pengaduan",
+      "natural language processing",
+      "nlp",
+      "penugasan otomatis"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -89,7 +115,13 @@ export const WORKS: Work[] = [
       "tunanetra",
       "aksesibilitas",
       "voice user interface",
-      "video ke suara"
+      "video ke suara",
+      "asisten cerdas",
+      "realtime",
+      "vui",
+      "disabilitas visual",
+      "pengenalan objek",
+      "ui ux inklusif"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -105,7 +137,13 @@ export const WORKS: Work[] = [
       "diabetes",
       "wearable",
       "pemantauan glukosa",
-      "penyakit kronis"
+      "penyakit kronis",
+      "non-invasive",
+      "gula darah",
+      "monitoring kesehatan",
+      "pengelolaan penyakit",
+      "aplikasi kesehatan",
+      "sensor medis"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -121,7 +159,13 @@ export const WORKS: Work[] = [
       "kehamilan",
       "peran suami",
       "kematian ibu",
-      "kesehatan ibu"
+      "kesehatan ibu",
+      "partisipasi suami",
+      "kehamilan pertama",
+      "angka kematian ibu",
+      "edukasi kehamilan",
+      "aplikasi kesehatan",
+      "akm"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -136,8 +180,13 @@ export const WORKS: Work[] = [
     "keyphrases": [
       "makan sekolah",
       "transparansi",
-      "UX",
-      "pendidikan"
+      "ux design",
+      "pendidikan",
+      "school meal program",
+      "gizi siswa",
+      "pengalaman pengguna",
+      "akuntabilitas",
+      "digitalisasi program sekolah"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -153,7 +202,12 @@ export const WORKS: Work[] = [
       "kota cerdas",
       "lalu lintas",
       "infrastruktur jalan",
-      "Surabaya"
+      "surabaya",
+      "smart city",
+      "transportasi cerdas",
+      "manajemen lalu lintas",
+      "iot kota",
+      "smart governance"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -168,7 +222,12 @@ export const WORKS: Work[] = [
     "keyphrases": [
       "ambulans",
       "pemantauan kesehatan",
-      "kota cerdas"
+      "kota cerdas",
+      "monitoring pasien",
+      "sensor vital",
+      "iot medis",
+      "gawat darurat",
+      "smart health"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -184,7 +243,12 @@ export const WORKS: Work[] = [
       "smartpole",
       "informasi publik",
       "peringatan dini",
-      "pariwisata"
+      "pariwisata",
+      "early warning system",
+      "iot kota",
+      "kawasan wisata",
+      "denpasar",
+      "infrastruktur cerdas"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -199,8 +263,14 @@ export const WORKS: Work[] = [
     "keyphrases": [
       "pengaduan masyarakat",
       "layanan publik",
-      "klasifikasi AI",
-      "gawat darurat"
+      "klasifikasi ai",
+      "gawat darurat",
+      "laporan warga",
+      "satu pintu",
+      "pengaduan darurat",
+      "platform crm",
+      "kota cerdas",
+      "penanganan masalah"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -215,7 +285,12 @@ export const WORKS: Work[] = [
     "keyphrases": [
       "tanda vital",
       "citra termal",
-      "pemantauan tanpa kontak"
+      "pemantauan tanpa kontak",
+      "thermal imaging",
+      "spatio-temporal filtering",
+      "monitoring non-kontak",
+      "karya tulis ilmiah",
+      "sensor suhu"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -228,10 +303,14 @@ export const WORKS: Work[] = [
     "category": "ESSAY",
     "summary": "Menerjemahkan sinyal otak (EEG) menjadi kata dengan komputasi berdimensi rendah.",
     "keyphrases": [
-      "EEG",
+      "eeg",
       "sinyal otak",
       "terjemahan ke kata",
-      "low dimensional computing"
+      "low dimensional computing",
+      "elektroensefalogram",
+      "brain computer interface",
+      "bci",
+      "komputasi dimensi rendah"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -246,9 +325,13 @@ export const WORKS: Work[] = [
     "keyphrases": [
       "tumor otak",
       "segmentasi",
-      "MRI",
-      "U-Net",
-      "transformer"
+      "mri",
+      "u-net",
+      "transformer",
+      "attention mechanism",
+      "citra medis",
+      "deep learning",
+      "arsitektur neural network"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -262,9 +345,13 @@ export const WORKS: Work[] = [
     "summary": "Model hybrid CNN dengan ensemble learning untuk mendeteksi tumor otak dari citra MRI.",
     "keyphrases": [
       "tumor otak",
-      "CNN hybrid",
+      "cnn hybrid",
       "ensemble learning",
-      "MRI"
+      "mri",
+      "ekstraksi fitur",
+      "deteksi tumor",
+      "deep learning",
+      "klasifikasi citra medis"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -280,7 +367,11 @@ export const WORKS: Work[] = [
       "jalur evakuasi",
       "bencana",
       "ant colony optimization",
-      "optimasi"
+      "optimasi",
+      "aco",
+      "algoritma koloni semut",
+      "mitigasi bencana",
+      "pencarian jalur optimal"
     ],
     "sourceUrl": "https://www.unsulbarnews.com/sempat-down-tim-unsulbar-raih-the-most-inspiring-team-gemastik-2024"
   },
@@ -295,9 +386,14 @@ export const WORKS: Work[] = [
     "keyphrases": [
       "nasihat hukum",
       "kreator",
-      "UMKM",
-      "AI",
-      "legal tech"
+      "umkm",
+      "ai",
+      "legal tech",
+      "advis hukum",
+      "kekayaan intelektual",
+      "kontrak kreator",
+      "platform hukum",
+      "bantuan hukum digital"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -313,7 +409,12 @@ export const WORKS: Work[] = [
       "disabilitas",
       "aksesibilitas web",
       "ekstensi browser",
-      "aplikasi mobile"
+      "aplikasi mobile",
+      "penyandang disabilitas",
+      "inklusif digital",
+      "screen reader",
+      "teks ke suara",
+      "ux inklusif"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -328,9 +429,13 @@ export const WORKS: Work[] = [
     "keyphrases": [
       "tunanetra",
       "fashion",
-      "RFID",
-      "AI",
-      "aplikasi mobile"
+      "rfid",
+      "ai",
+      "aplikasi mobile",
+      "pengenalan pakaian",
+      "asisten visual",
+      "aksesibilitas",
+      "disabilitas visual"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -346,7 +451,13 @@ export const WORKS: Work[] = [
       "belajar coding",
       "blok",
       "gamifikasi",
-      "pendidikan digital"
+      "pendidikan digital",
+      "scratch",
+      "block-based programming",
+      "literasi digital",
+      "platform edukasi",
+      "minat belajar",
+      "talenta digital"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -362,8 +473,13 @@ export const WORKS: Work[] = [
       "tunanetra",
       "demensia",
       "asisten virtual",
-      "generative AI",
-      "embedded system"
+      "generative ai",
+      "embedded system",
+      "streaming video",
+      "perangkat tertanam",
+      "aksesibilitas",
+      "iot",
+      "ai generatif"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -377,9 +493,13 @@ export const WORKS: Work[] = [
     "summary": "Muatan drone untuk mendeteksi radiasi lewat fotogrametri berbasis IoT.",
     "keyphrases": [
       "deteksi radiasi",
-      "drone UAV",
+      "drone uav",
       "fotogrametri",
-      "IoT"
+      "iot",
+      "kawasan berkelanjutan",
+      "penginderaan udara",
+      "lingkungan",
+      "sensor radiasi"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -394,7 +514,11 @@ export const WORKS: Work[] = [
     "keyphrases": [
       "navigasi lokasi",
       "pasca bencana",
-      "pelacakan"
+      "pelacakan",
+      "gps",
+      "titik evakuasi",
+      "iot bencana",
+      "penanggulangan bencana"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -409,8 +533,13 @@ export const WORKS: Work[] = [
     "keyphrases": [
       "kursi roda",
       "gerakan mata",
-      "CNN",
-      "difabel"
+      "cnn",
+      "difabel",
+      "kontrol mata",
+      "eye tracking",
+      "mobilitas disabilitas",
+      "embedded system",
+      "asisten fisik"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -421,8 +550,15 @@ export const WORKS: Work[] = [
     "competition": "Gemastik XVII 2024 - Pengembangan Aplikasi Permainan",
     "institution": "Institut Teknologi Bandung",
     "category": "APP",
-    "summary": "",
-    "keyphrases": [],
+    "summary": "Permainan simulasi pengelolaan keuangan pribadi dengan alur cerita interaktif.",
+    "keyphrases": [
+      "keuangan",
+      "simulasi",
+      "permainan edukasi",
+      "literasi keuangan",
+      "game edukasi",
+      "manajemen uang"
+    ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
   {
@@ -432,8 +568,13 @@ export const WORKS: Work[] = [
     "competition": "Gemastik XVII 2024 - Pengembangan Aplikasi Permainan",
     "institution": "Universitas Telkom",
     "category": "APP",
-    "summary": "",
-    "keyphrases": [],
+    "summary": "Permainan bertema perjalanan pulang kampung dengan nuansa budaya dan nostalgia Indonesia.",
+    "keyphrases": [
+      "budaya indonesia",
+      "permainan petualangan",
+      "nostalgia",
+      "game naratif"
+    ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
   {
@@ -443,8 +584,14 @@ export const WORKS: Work[] = [
     "competition": "Gemastik XVII 2024 - Pengembangan Aplikasi Permainan",
     "institution": "Universitas Indonesia",
     "category": "APP",
-    "summary": "",
-    "keyphrases": [],
+    "summary": "Game detektif bertema hutan misterius dengan teka-teki dan pengungkapan kasus.",
+    "keyphrases": [
+      "game detektif",
+      "petualangan",
+      "teka-teki",
+      "misteri",
+      "game android"
+    ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
   {
@@ -454,8 +601,14 @@ export const WORKS: Work[] = [
     "competition": "Gemastik XVII 2024 - Pengembangan Aplikasi Permainan",
     "institution": "Universitas Brawijaya",
     "category": "APP",
-    "summary": "",
-    "keyphrases": [],
+    "summary": "Permainan bertema segel warisan budaya dengan elemen strategi dan eksplorasi.",
+    "keyphrases": [
+      "budaya",
+      "game strategi",
+      "eksplorasi",
+      "warisan",
+      "game mobile"
+    ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
   {
@@ -469,7 +622,12 @@ export const WORKS: Work[] = [
     "keyphrases": [
       "masalah hukum",
       "layanan hukum",
-      "bisnis TIK"
+      "bisnis tik",
+      "konsultasi hukum",
+      "legal ai",
+      "bantuan hukum digital",
+      "legaltech",
+      "akses keadilan"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -484,7 +642,12 @@ export const WORKS: Work[] = [
     "keyphrases": [
       "konsumsi gula",
       "kesehatan",
-      "bisnis TIK"
+      "bisnis tik",
+      "pemindaian gula",
+      "diet sehat",
+      "nutrisi",
+      "hidup sehat",
+      "aplikasi kesehatan"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -500,7 +663,12 @@ export const WORKS: Work[] = [
       "disabilitas",
       "pelatihan kerja",
       "penyaluran kerja",
-      "inklusif"
+      "inklusif",
+      "ai",
+      "platform kerja inklusif",
+      "lima kategori disabilitas",
+      "ketenagakerjaan",
+      "pemberdayaan disabilitas"
     ],
     "sourceUrl": "https://si.ft.unesa.ac.id/post/peringkat-kompetisi-gemastik"
   },
@@ -631,7 +799,11 @@ export const WORKS: Work[] = [
       "sampah organik",
       "tukar sampah",
       "reward",
-      "bisnis digital"
+      "bisnis digital",
+      "pengolahan sampah",
+      "circular economy",
+      "insentif limbah",
+      "daur ulang"
     ],
     "sourceUrl": "https://primakara.ac.id/blog/berita/mahasiswa-primakara-raih-juara-1-business-plan-competition-instiki"
   },
@@ -647,7 +819,11 @@ export const WORKS: Work[] = [
       "pengelolaan sampah",
       "pemulung",
       "platform digital",
-      "kerja fleksibel"
+      "kerja fleksibel",
+      "kesejahteraan pemulung",
+      "logistik sampah",
+      "ekonomi sirkular",
+      "waste management"
     ],
     "sourceUrl": "https://kemahasiswaan.ui.ac.id/mahasiswa-fasilkom-ui-sabet-juara-1-business-plan-ideas-ugm-lewat-inovasi-digital-moelung/"
   },
@@ -663,7 +839,11 @@ export const WORKS: Work[] = [
       "menabung",
       "gamifikasi",
       "remaja",
-      "literasi keuangan"
+      "literasi keuangan",
+      "financial literacy",
+      "item virtual",
+      "tabungan cerdas",
+      "kebiasaan menabung"
     ],
     "sourceUrl": "https://www.upnyk.ac.id/berita/mahasiswa-upnvy-raih-juara-1-national-business-plan-competition-effect-uns-2025"
   },
@@ -678,7 +858,12 @@ export const WORKS: Work[] = [
     "keyphrases": [
       "pariwisata",
       "budaya",
-      "platform digital"
+      "platform digital",
+      "wisata lokal",
+      "destinasi wisata",
+      "warisan budaya",
+      "eksplorasi budaya",
+      "travel platform"
     ],
     "sourceUrl": "https://filkom.ub.ac.id/2025/06/03/tim-mahasiswa-si-filkom-ub-juara-1-di-undiknas-business-model-canvas-competition-ubmcc-2025/"
   },
@@ -689,8 +874,18 @@ export const WORKS: Work[] = [
     "competition": "National Business Plan Competition Binus University 2025",
     "institution": "Universitas Tarumanagara",
     "category": "BUSINESS_PLAN",
-    "summary": "",
-    "keyphrases": [],
+    "summary": "Platform edukasi bahasa interaktif dengan pengenalan suara dan pelafalan real-time untuk pemula dan teman tuli/disabilitas.",
+    "keyphrases": [
+      "echolang",
+      "edukasi bahasa",
+      "pengenalan suara",
+      "speech recognition",
+      "tuna rungu",
+      "bahasa isyarat",
+      "platform digital",
+      "business plan",
+      "pembelajaran adaptif"
+    ],
     "sourceUrl": "https://feb.untar.ac.id/2025/10/31/tim-mahasiswa-prodi-s1-manajemen-berprestasi-dalam-national-business-plan-competition/"
   },
   {
@@ -705,7 +900,12 @@ export const WORKS: Work[] = [
       "UMKM",
       "ekspor",
       "AI",
-      "kesiapan ekspor"
+      "kesiapan ekspor",
+      "pasar internasional",
+      "analisis pasar",
+      "akselerasi bisnis",
+      "kecerdasan buatan",
+      "fintech"
     ],
     "sourceUrl": "https://itb.ac.id/berita/tim-mtaf-impact-itb-juara-1-hackathon-bi-ojk-2025-rancang-solusi-ai-untuk-ekspor-umkm/62996"
   },
@@ -721,7 +921,11 @@ export const WORKS: Work[] = [
       "UMKM",
       "kepatuhan",
       "transformasi digital",
-      "agentic AI"
+      "agentic AI",
+      "regulasi bisnis",
+      "otomasi kepatuhan",
+      "legal compliance",
+      "efisiensi operasional"
     ],
     "sourceUrl": "https://jteti.ugm.ac.id/2026/01/19/hadirkan-solusi-digital-untuk-umkm-dan-event-tim-dteti-ft-ugm-borong-juara-1-dan-2-di-national-vibe-coding-competition-2025/"
   },
@@ -737,7 +941,11 @@ export const WORKS: Work[] = [
       "kemampuan berbicara",
       "AI",
       "aplikasi edukasi",
-      "pendidikan"
+      "pendidikan",
+      "public speaking",
+      "latihan bicara",
+      "umpan balik vokal",
+      "analisis suara"
     ],
     "sourceUrl": "https://www.klikpendidikan.id/news/35815279294/teknologi-untuk-pendidikan-kisah-inspiratif-di-balik-juara-hackathon-arkavidia-9"
   },
@@ -754,7 +962,10 @@ export const WORKS: Work[] = [
       "AI agent",
       "UMKM",
       "layanan pelanggan",
-      "terdesentralisasi"
+      "terdesentralisasi",
+      "customer support",
+      "web widget",
+      "otomasi percakapan"
     ],
     "sourceUrl": "https://www.darmajaya.ac.id/mahasiswa-darmajaya-juara-1-hackathon-dengan-platform-ai-canggih-karya-sendiri/"
   },
@@ -770,7 +981,11 @@ export const WORKS: Work[] = [
       "pertanian",
       "AI",
       "IoT",
-      "alat bantu petani"
+      "alat bantu petani",
+      "smart agriculture",
+      "sensor tanah",
+      "monitoring tanaman",
+      "prediksi panen"
     ],
     "sourceUrl": "https://uns.ac.id/id/uns-students/mahasiswa-uns-sabet-juara-1-di-hackathon-elevaite-indonesia-2025.html"
   },
@@ -781,8 +996,17 @@ export const WORKS: Work[] = [
     "competition": "Hackathon eleVAite Indonesia Hub 2025 / National Hackathon 2025",
     "institution": "Universitas Brawijaya",
     "category": "APP",
-    "summary": "",
-    "keyphrases": [],
+    "summary": "Aplikasi asisten dapur dan kuliner pintar berbasis AI untuk rekomendasi resep dari bahan sisa kulkas guna meminimalisir food waste.",
+    "keyphrases": [
+      "kulkita",
+      "asisten dapur",
+      "food waste",
+      "rekomendasi resep",
+      "bahan makanan",
+      "kecerdasan buatan",
+      "smart kitchen",
+      "penghematan pangan"
+    ],
     "sourceUrl": "https://filkom.ub.ac.id/2025/08/28/mahasiswa-filkom-ub-raih-juara-1-hackathon-elevaite-indonesia-hub-2025/"
   },
   {
@@ -797,7 +1021,11 @@ export const WORKS: Work[] = [
       "tari tradisional",
       "pembelajaran seni",
       "budaya",
-      "aplikasi edukasi"
+      "aplikasi edukasi",
+      "motion tracking",
+      "seni tari",
+      "pelestarian budaya",
+      "interaktif"
     ],
     "sourceUrl": "https://binus.ac.id/bandung/computer-science/?p=625"
   },
@@ -812,7 +1040,12 @@ export const WORKS: Work[] = [
     "keyphrases": [
       "energi berkelanjutan",
       "partisipasi masyarakat",
-      "platform digital"
+      "platform digital",
+      "green energy",
+      "crowdfunding energi",
+      "transisi energi",
+      "sustainability",
+      "ui ux design"
     ],
     "sourceUrl": "https://binus.ac.id/2025/12/dua-inovasi-berbasis-sustainability-mahasiswa-school-of-information-systems-raih-2-juara-di-invofest-2025/"
   },
@@ -827,7 +1060,12 @@ export const WORKS: Work[] = [
     "keyphrases": [
       "food waste",
       "rumah tangga",
-      "aplikasi"
+      "aplikasi",
+      "manajemen makanan",
+      "tanggal kedaluwarsa",
+      "distribusi surplus pangan",
+      "sustainability",
+      "gaya hidup hijau"
     ],
     "sourceUrl": "https://binus.ac.id/2025/12/dua-inovasi-berbasis-sustainability-mahasiswa-school-of-information-systems-raih-2-juara-di-invofest-2025/"
   },
@@ -843,7 +1081,11 @@ export const WORKS: Work[] = [
       "disleksia",
       "anak",
       "belajar membaca",
-      "aplikasi edukasi"
+      "aplikasi edukasi",
+      "baca tulis",
+      "terapi disleksia",
+      "intervensi literasi",
+      "edutech inklusif"
     ],
     "sourceUrl": "https://binus.ac.id/bandung/?p=14700"
   },
@@ -860,7 +1102,10 @@ export const WORKS: Work[] = [
       "robot beroda",
       "IoT",
       "pemrograman",
-      "pendidikan"
+      "pendidikan",
+      "robotika sekolah",
+      "pembelajaran stem",
+      "media ajar digital"
     ],
     "sourceUrl": "https://pti.undiksha.ac.id/tim-prodi-pti-raih-juara-1-lidm-2025-dengan-inovasi-microteaching-robot-beroda-berbasis-iot/"
   },
@@ -876,7 +1121,11 @@ export const WORKS: Work[] = [
       "pembelajaran sejarah",
       "augmented reality",
       "buku digital",
-      "peta interaktif"
+      "peta interaktif",
+      "sejarah indonesia",
+      "pergerakan nasional",
+      "media interaktif",
+      "edukasi sejarah"
     ],
     "sourceUrl": "https://timesindonesia.co.id/indonesia-positif/565698/mahasiswa-filkom-ub-juara-nasional-lomba-media-pembelajaran-sejarah"
   },
@@ -891,7 +1140,11 @@ export const WORKS: Work[] = [
     "keyphrases": [
       "aljabar",
       "media pembelajaran",
-      "matematika SMP"
+      "matematika SMP",
+      "game edukasi",
+      "visualisasi aljabar",
+      "konsep variabel",
+      "pembelajaran matematika"
     ],
     "sourceUrl": "https://s2pmat.fmipa.uny.ac.id/id/print/Pekan%20Gema%20Matematika%20%28PGM%29%20Tahun%202025"
   },
@@ -902,8 +1155,18 @@ export const WORKS: Work[] = [
     "competition": "LIDM 2025 - Inovasi Pembelajaran Digital Pendidikan",
     "institution": "Universitas Negeri Yogyakarta",
     "category": "APP",
-    "summary": "",
-    "keyphrases": [],
+    "summary": "Platform pembelajaran pemrograman mikrokontroler Arduino menggunakan visual block-based programming untuk siswa pemula.",
+    "keyphrases": [
+      "blockduino",
+      "arduino",
+      "block coding",
+      "pemrograman visual",
+      "mikrokontroler",
+      "edukasi iot",
+      "inovasi pembelajaran",
+      "stem digital",
+      "robotika"
+    ],
     "sourceUrl": "https://uny.ac.id/id/berita/raih-juara-1-inovasi-pembelajaran-digital-pendidikan-tim-blockspire-uny-bawa-pulang-medali"
   },
   {
@@ -918,7 +1181,12 @@ export const WORKS: Work[] = [
       "radiologi",
       "augmented reality",
       "praktik",
-      "pendidikan"
+      "pendidikan",
+      "simulasi medis",
+      "neurotag scan",
+      "kedokteran",
+      "pelatihan radiasi",
+      "edukasi kesehatan"
     ],
     "sourceUrl": "https://unair.ac.id/tim-radju-unair-raih-juara-1-di-ajang-lomba-inovasi-dan-digital-mahasiswa-lidm-melalui-inovasi-radvent/"
   },
@@ -929,8 +1197,17 @@ export const WORKS: Work[] = [
     "competition": "LIDM 2025 - Inovasi Teknologi Digital Pendidikan",
     "institution": "Universitas Pendidikan Indonesia",
     "category": "APP",
-    "summary": "",
-    "keyphrases": [],
+    "summary": "Portal integrasi dan pencarian tempat magang pendidikan dan industri berbasis kecocokan kompetensi mahasiswa.",
+    "keyphrases": [
+      "info magang",
+      "magang kependidikan",
+      "portal magang",
+      "rekomendasi otomatis",
+      "mahasiswa keguruan",
+      "praktek kerja",
+      "teknologi pendidikan",
+      "karir mahasiswa"
+    ],
     "sourceUrl": "https://berita.upi.edu/upi-raih-tiga-gelar-di-lidm-2025-bukti-kebangkitan-inovasi-digital-mahasiswa/"
   },
   {
@@ -946,7 +1223,10 @@ export const WORKS: Work[] = [
       "virtual reality",
       "Scratch",
       "microteaching",
-      "matematika SD"
+      "matematika SD",
+      "bilangan desimal",
+      "gamifikasi matematika",
+      "vr edukasi"
     ],
     "sourceUrl": "https://library.usk.ac.id/mahasiswa-usk-raih-juara-iii-inovasi-digital-di-ipb-university/"
   },
@@ -957,8 +1237,16 @@ export const WORKS: Work[] = [
     "competition": "LIDM 2025 - Poster Digital Pendidikan",
     "institution": "Institut Seni Indonesia Yogyakarta",
     "category": "POSTER",
-    "summary": "",
-    "keyphrases": [],
+    "summary": "Poster edukasi visual untuk menumbuhkan kepedulian kesehatan mental dan ekspresi diri anak usia dini melalui seni kreatif.",
+    "keyphrases": [
+      "binky",
+      "poster digital",
+      "pendidikan seni",
+      "kesehatan mental anak",
+      "ekspresi diri",
+      "desain komunikasi visual",
+      "kampanye edukatif"
+    ],
     "sourceUrl": "https://kemdiktisaintek.go.id/en/news/article/generasi-kreatif-isi-yogyakarta-torehkan-juara-2-poster-digital-pendidikan-di-lidm-2025"
   },
   {
@@ -973,7 +1261,11 @@ export const WORKS: Work[] = [
       "stunting",
       "gizi seimbang",
       "edukasi kesehatan",
-      "poster"
+      "poster",
+      "nutrisi balita",
+      "pencegahan stunting",
+      "promosi kesehatan",
+      "kesehatan ibu dan anak"
     ],
     "sourceUrl": "https://kemdiktisaintek.go.id/news/article/mahasiswa-fkep-unej-borong-juara-di-indonesian-nursing-olympiad-2025"
   },
@@ -990,7 +1282,11 @@ export const WORKS: Work[] = [
       "wearable",
       "R-Shiny",
       "poli paru",
-      "layanan kesehatan"
+      "layanan kesehatan",
+      "tuberkulosis",
+      "pemantauan pasien",
+      "dashboard klinis",
+      "kepatuhan minum obat"
     ],
     "sourceUrl": "https://kemdiktisaintek.go.id/news/article/mahasiswa-fkep-unej-borong-juara-di-indonesian-nursing-olympiad-2025"
   },
@@ -1006,7 +1302,11 @@ export const WORKS: Work[] = [
       "e-learning",
       "relawan",
       "pendidikan pesisir",
-      "kesenjangan pendidikan"
+      "kesenjangan pendidikan",
+      "anak pulau",
+      "akses belajar",
+      "pendidikan inklusif",
+      "pemberdayaan masyarakat"
     ],
     "sourceUrl": "https://news.unimal.ac.id/index/cetakberita/7365"
   },
@@ -1022,7 +1322,11 @@ export const WORKS: Work[] = [
       "pendidikan inklusif",
       "disabilitas",
       "Finlandia",
-      "roadmap"
+      "roadmap",
+      "kebijakan pendidikan",
+      "sekolah inklusi",
+      "kesetaraan akses",
+      "kurikulum adaptif"
     ],
     "sourceUrl": "https://feb.ugm.ac.id/id/prestasi/4399-tim-mat-raih-juara-pertama-lomba-esai-pada-efa-competition-2023"
   },
@@ -1038,7 +1342,11 @@ export const WORKS: Work[] = [
       "hoaks",
       "literasi digital",
       "Society 5.0",
-      "mahasiswa"
+      "mahasiswa",
+      "santri digital",
+      "pencegahan misinformasi",
+      "etika digital",
+      "pesantren modern"
     ],
     "sourceUrl": "https://www.nu.or.id/nasional/juara-1-kompetisi-esai-kopertais-wilayah-i-mahasiswi-pai-unusia-ungguli-puluhan-kampus-yJi1o"
   },
@@ -1054,7 +1362,11 @@ export const WORKS: Work[] = [
       "tradisi lokal",
       "budaya Pandalungan",
       "NU",
-      "Lumajang"
+      "Lumajang",
+      "kearifan lokal",
+      "akulturasi budaya",
+      "egalitarianisme",
+      "kajian sosiokultural"
     ],
     "sourceUrl": "https://nu.or.id/nasional/mahasiswa-s2-unusia-raih-juara-lomba-esai-santri-dan-mahasiswa-tingkat-nasional-oR4A3"
   },
@@ -1071,7 +1383,11 @@ export const WORKS: Work[] = [
       "soft skill",
       "magang",
       "Tripel Helix",
-      "lapangan kerja"
+      "lapangan kerja",
+      "kesiapan kerja",
+      "vokasi industri",
+      "penyerapan lulusan",
+      "kolaborasi industri"
     ],
     "sourceUrl": "https://kemdiktisaintek.go.id/news/article/lomba-esai-nasional-tim-undiksha-raih-juara-i"
   }

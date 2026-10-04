@@ -7,6 +7,7 @@ export interface ConfigData {
   bobot: {
     teks: number;
     konsep: number;
+    semantic?: number | undefined;
     ocr?: number | undefined;
     dhash?: number | undefined;
     layout?: number | undefined;
@@ -36,12 +37,14 @@ export interface KaryaTeks {
   kategori?: string | undefined;
   peringkat?: string | undefined;
   ringkasan: string;
+  ringkasan_stemmed?: string | undefined;
   ringkasan_sumber?: string | undefined;
   keyphrases: string[];
   sumber_url?: string | undefined;
   sumber_pendukung?: string | undefined;
   status?: string | undefined;
   catatan?: string | undefined;
+  embedding?: number[] | undefined;
 }
 
 export interface ArsipGambar {
@@ -59,6 +62,7 @@ export interface ArsipGambar {
   ocr_teks: string;
   sumber_url?: string | undefined;
   status?: string | undefined;
+  embedding?: number[] | undefined;
 }
 
 export interface VisualFeatures {
@@ -93,6 +97,7 @@ export interface MatchedTextResult {
   judul: string;
   textScore: number;
   conceptScore: number;
+  semanticScore?: number | undefined;
   combinedScore: number;
   sharedPhrases: string[];
   sharedWords: string[];
@@ -106,6 +111,7 @@ export interface MatchResult {
   topScore: number;
   topText: number;
   topConcept: number;
+  topSemantic?: number | undefined;
   query: {
     title: string;
     description: string;
@@ -127,6 +133,7 @@ export interface MatchResult {
     };
     textScore: number;
     conceptScore: number;
+    semanticScore?: number | undefined;
     combined: number;
     sharedPhrases: string[];
     sharedWords: string[];

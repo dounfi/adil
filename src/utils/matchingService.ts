@@ -12,6 +12,7 @@ import {
   calculateLayoutSimilarity,
 } from './visualFeatureExtractor';
 import { WORKS } from '../lib/works';
+import { cosineSimilarity, generateTextEmbedding } from './embeddingService';
 
 /**
  * Fallback Arsip Data jika file static /arsip_features.json belum tersedia atau gagal dimuat.
@@ -20,8 +21,9 @@ export const FALLBACK_ARSIP_DATA: ArsipData = {
   versi: '2026-10-03-fallback',
   config: {
     bobot: {
-      teks: 0.5,
-      konsep: 0.5,
+      teks: 0.35,
+      konsep: 0.35,
+      semantic: 0.3,
       ocr: 0.5,
       dhash: 0.4,
       layout: 0.4,
@@ -101,15 +103,38 @@ export async function loadArsipData(): Promise<ArsipData> {
   return FALLBACK_ARSIP_DATA;
 }
 
+// Kata-kata umum dalam domain lomba/aplikasi yang tidak boleh memicu kemiripan konsep palsu
+export const GENERIC_DOMAIN_WORDS = new Set([
+  'aplikasi',
+  'sistem',
+  'platform',
+  'model',
+  'metode',
+  'berbasis',
+  'untuk',
+  'dengan',
+  'pengembangan',
+  'rancang',
+  'bangun',
+  'teknologi',
+  'fitur',
+  'solusi',
+  'inovasi',
+  'buat',
+  'lewat',
+  'media',
+]);
+
 /**
  * Tokenisasi teks Bahasa Indonesia dengan menghapus tanda baca dan stopwords.
  */
 export function tokenizeText(text: string, stopwordsList?: string[]): string[] {
-  const stops = new Set(
-    stopwordsList && stopwordsList.length > 0
+  const stops = new Set([
+    ...(stopwordsList && stopwordsList.length > 0
       ? stopwordsList
-      : FALLBACK_ARSIP_DATA.stopwords
-  );
+      : FALLBACK_ARSIP_DATA.stopwords),
+    ...GENERIC_DOMAIN_WORDS,
+  ]);
 
   return text
     .toLowerCase()
@@ -161,16 +186,34 @@ function calculateTfidfCosine(
 
 /**
  * Mencari irisan keyphrase antara teks pengguna dan keyphrase karya arsip.
+ * Menggunakan boundary word regex agar substring sembarangan (misal "ai" di dalam "sains") tidak cocok palsu.
  */
 function findSharedPhrases(inputText: string, keyphrases: string[]): string[] {
-  if (!keyphrases || !keyphrases.length) return [];
-  const lowerInput = ` ${inputText.toLowerCase()} `;
+  if (!keyphrases || !keyphrases.length || !inputText) return [];
+  const cleanInput = inputText.toLowerCase();
+
   return keyphrases.filter((kp) => {
     const cleanKp = kp.trim().toLowerCase();
-    if (!cleanKp) return false;
-    if (lowerInput.includes(cleanKp)) return true;
-    const words = cleanKp.split(/\s+/).filter((w) => w.length > 2);
-    return words.length > 1 && words.every((w) => lowerInput.includes(w));
+    if (!cleanKp || cleanKp.length < 2) return false;
+
+    // Abaikan kata generik tunggal seperti "aplikasi", "sistem", dll.
+    if (GENERIC_DOMAIN_WORDS.has(cleanKp)) return false;
+
+    // Boundary check untuk kata/frasa utuh agar "ai" tidak cocok dengan "sains", "pantai", dll.
+    const escaped = cleanKp.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const wholePhraseRegex = new RegExp(`(^|[^a-z0-9à-ÿ])${escaped}($|[^a-z0-9à-ÿ])`, 'i');
+    if (wholePhraseRegex.test(cleanInput)) return true;
+
+    // Multi-kata (misal: "lapor warga", "klasifikasi multimodal")
+    const words = cleanKp.split(/\s+/).filter((w) => w.length > 2 && !GENERIC_DOMAIN_WORDS.has(w));
+    if (words.length > 1) {
+      return words.every((w) => {
+        const wEscaped = w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return new RegExp(`(^|[^a-z0-9à-ÿ])${wEscaped}($|[^a-z0-9à-ÿ])`, 'i').test(cleanInput);
+      });
+    }
+
+    return false;
   });
 }
 
@@ -194,11 +237,12 @@ export function calculateWordSimilarity(textA: string, textB: string): number {
 
 /**
  * 1. PENCOCOKAN TEKS (Dokumen / Ketikan vs arsipData.teks)
- * Menghitung TF-IDF Cosine Similarity & Jaccard Concept Similarity.
+ * Menghitung TF-IDF Cosine Similarity, Jaccard Concept Similarity, & Semantic Embedding Similarity.
  */
 export function matchTextWithArsip(
   queryText: string,
-  arsipData: ArsipData
+  arsipData: ArsipData,
+  userEmbedding?: number[] | null
 ): MatchedTextResult[] {
   const queryTokens = tokenizeText(queryText, arsipData.stopwords);
   const works = arsipData.teks || [];
@@ -216,8 +260,9 @@ export function matchTextWithArsip(
     }
   }
 
-  const weightTeks = arsipData.config?.bobot?.teks ?? 0.5;
-  const weightKonsep = arsipData.config?.bobot?.konsep ?? 0.5;
+  const weightTeks = arsipData.config?.bobot?.teks ?? 0.35;
+  const weightKonsep = arsipData.config?.bobot?.konsep ?? 0.35;
+  const weightSemantic = arsipData.config?.bobot?.semantic ?? 0.3;
 
   return works
     .map((karya, idx) => {
@@ -228,20 +273,35 @@ export function matchTextWithArsip(
         ? Number((sharedPhrases.length / karya.keyphrases.length).toFixed(4))
         : 0;
 
+      // Hitung skor kemiripan semantik menggunakan embedding jika tersedia
+      let semanticScore = 0;
+      if (userEmbedding && Array.isArray(karya.embedding) && karya.embedding.length > 0) {
+        semanticScore = cosineSimilarity(userEmbedding, karya.embedding);
+      }
+
       const karyaWordsSet = new Set(docTokens);
       const sharedWords = [...new Set(queryTokens)]
         .filter((w) => karyaWordsSet.has(w))
         .slice(0, 12);
 
-      const combinedScore = Number(
-        (weightTeks * textScore + weightKonsep * conceptScore).toFixed(4)
-      );
+      let combinedScore: number;
+      if (userEmbedding && Array.isArray(karya.embedding) && karya.embedding.length > 0) {
+        combinedScore = Number(
+          (weightTeks * textScore + weightKonsep * conceptScore + weightSemantic * semanticScore).toFixed(4)
+        );
+      } else {
+        const totalWeight = weightTeks + weightKonsep;
+        combinedScore = Number(
+          ((weightTeks / totalWeight) * textScore + (weightKonsep / totalWeight) * conceptScore).toFixed(4)
+        );
+      }
 
       return {
         id: karya.id,
         judul: karya.judul,
         textScore,
         conceptScore,
+        semanticScore: userEmbedding ? semanticScore : undefined,
         combinedScore,
         sharedPhrases,
         sharedWords,
@@ -401,12 +461,23 @@ export async function matchAllInputs(params: {
   extractedText?: string;
   visualFeatures?: VisualFeatures | null;
   arsipData?: ArsipData | null;
+  userEmbedding?: number[] | null;
 }): Promise<MatchResult> {
   const arsip = params.arsipData || (await loadArsipData());
   const combinedText = `${params.title} ${params.description} ${params.extractedText || ''}`.trim();
 
-  // 1. Jalankan Text Matching
-  const matchedTexts = matchTextWithArsip(combinedText, arsip);
+  // Ekstrak On-Device Semantic Embedding jika belum disediakan
+  let userEmbedding = params.userEmbedding;
+  if (userEmbedding === undefined && combinedText) {
+    try {
+      userEmbedding = await generateTextEmbedding(combinedText);
+    } catch (embErr) {
+      console.warn('Fallback: skipping embedding generation', embErr);
+    }
+  }
+
+  // 1. Jalankan Text Matching dengan dukungan semantic embedding
+  const matchedTexts = matchTextWithArsip(combinedText, arsip, userEmbedding);
 
   // 2. Jalankan Visual Matching bila ada fitur gambar
   let matchedPosters: MatchedPosterResult[] = [];
@@ -434,10 +505,15 @@ export async function matchAllInputs(params: {
 
   const topText = matchedTexts[0];
   const topPoster = matchedPosters[0];
-  const topScore = Math.max(topText?.combinedScore ?? 0, topPoster?.combinedScore ?? 0);
+  const topScore = Math.max(
+    topText?.combinedScore ?? 0,
+    topPoster?.combinedScore ?? 0
+  );
+  const lowMax = arsip.config?.ambang_band?.rendah_maks ?? 0.35;
+  const midMax = arsip.config?.ambang_band?.sedang_maks ?? 0.6;
 
   const band =
-    topScore >= 0.4 ? 'tinggi' : topScore >= 0.18 ? 'sedang' : 'rendah';
+    topScore >= midMax ? 'tinggi' : topScore >= lowMax ? 'sedang' : 'rendah';
 
   const matches = matchedTexts.slice(0, 6).map((m) => ({
     work: {
@@ -453,6 +529,7 @@ export async function matchAllInputs(params: {
     },
     textScore: m.textScore,
     conceptScore: m.conceptScore,
+    semanticScore: m.semanticScore,
     combined: m.combinedScore,
     sharedPhrases: m.sharedPhrases,
     sharedWords: m.sharedWords,
@@ -465,6 +542,7 @@ export async function matchAllInputs(params: {
     topScore,
     topText: topText?.textScore ?? 0,
     topConcept: topText?.conceptScore ?? 0,
+    topSemantic: topText?.semanticScore,
     query: {
       title: params.title,
       description: params.description,

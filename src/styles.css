@@ -76,7 +76,8 @@
     border-color: var(--color-border);
   }
 
-  html, body {
+  html,
+  body {
     overflow-x: hidden;
     max-width: 100vw;
   }
@@ -87,7 +88,10 @@
     font-family: var(--font-body);
   }
 
-  h1, h2, h3, .font-display {
+  h1,
+  h2,
+  h3,
+  .font-display {
     font-family: var(--font-display);
   }
 }
@@ -110,19 +114,43 @@
 }
 
 @keyframes float-slow {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes pop-in {
-  0% { transform: scale(0.6) rotate(var(--pop-rotate, -4deg)); opacity: 0; }
-  70% { transform: scale(1.08) rotate(var(--pop-rotate, -4deg)); }
-  100% { transform: scale(1) rotate(var(--pop-rotate, -4deg)); opacity: 1; }
+  0% {
+    transform: scale(0.6) rotate(var(--pop-rotate, -4deg));
+    opacity: 0;
+  }
+
+  70% {
+    transform: scale(1.08) rotate(var(--pop-rotate, -4deg));
+  }
+
+  100% {
+    transform: scale(1) rotate(var(--pop-rotate, -4deg));
+    opacity: 1;
+  }
 }
 
 @keyframes drift {
-  0%, 100% { transform: translate(0, 0); }
-  50% { transform: translate(6px, -8px); }
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(6px, -8px);
+  }
 }
 
 @utility animate-float-slow {
@@ -138,9 +166,38 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Print styles agar warna kartu, badge, dan progress bar persis seperti di web saat disimpan ke PDF */
+@media print {
+  :root,
+  html,
+  body,
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .rounded-3xl,
+  [class*="shadow-poster"] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

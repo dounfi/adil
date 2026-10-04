@@ -6,6 +6,7 @@ import { PosterCard, ScoreBar } from "@/components/chrome";
 import { EXAMPLE_IDEA } from "@/lib/works";
 import { extractTextFromFile } from "@/utils/fileExtractor";
 import { extractVisualFeatures } from "@/utils/visualFeatureExtractor";
+import { extractIdeaWithGemini, extractTitleFromGeminiText } from "@/utils/cleanUserPdfText";
 import { loadArsipData, matchAllInputs } from "@/utils/matchingService";
 import { setLastResult } from "@/lib/scoring";
 import type { MatchResult } from "@/types/arsip";
@@ -16,9 +17,9 @@ interface CheckerProps {
 }
 
 const LOADING_STEPS = [
-  "Membaca berkas dan menganalisis konten...",
-  "Mengekstrak kata kunci konsep & sinyal visual...",
-  "Mencocokkan dengan basis data arsip karya lomba...",
+  "Membaca berkas dokumen & mengekstrak konten...",
+  "Gemini AI menyaring dokumen & mengekstrak ide inti...",
+  "Mencocokkan kata, topik, & makna dengan arsip...",
 ];
 
 export function Checker({ showInlineResults = false, onAnalysisComplete }: CheckerProps) {
@@ -99,11 +100,16 @@ export function Checker({ showInlineResults = false, onAnalysisComplete }: Check
           }
         } else {
           // Dokumen Teks (.pdf, .docx, .txt)
-          extractedText = await extractTextFromFile(selectedFile);
+          const rawDocText = await extractTextFromFile(selectedFile);
+
+          // Saring sampah dokumen (daftar isi, bab, dll.) dan ekstrak ide inti via Gemini AI
+          // (Dilengkapi multi-key fallback & local fallback otomatis)
+          extractedText = await extractIdeaWithGemini(rawDocText);
         }
 
-        finalTitle = selectedFile.name.replace(/\.[^/.]+$/, "");
-        finalDesc = extractedText.slice(0, 600);
+        const autoDetectedTitle = extractTitleFromGeminiText(extractedText);
+        finalTitle = title.trim() || autoDetectedTitle || selectedFile.name.replace(/\.[^/.]+$/, "").replace(/[_-]+/g, " ").trim();
+        finalDesc = desc.trim() || extractedText;
       }
 
       // Hitung perbandingan dan kemiripan terhadap data arsip static

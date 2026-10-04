@@ -47,14 +47,14 @@ function HasilPage() {
   const nextSteps =
     result.band === "rendah"
       ? [
-          { label: "Catat ideku", to: "/catat" as const },
-          { label: "Cek ide lain", to: "/cek" as const },
-        ]
+        { label: "Catat ideku", to: "/catat" as const },
+        { label: "Cek ide lain", to: "/cek" as const },
+      ]
       : [
-          ...(top ? [{ label: "Lihat bedanya", to: "/hasil/$workId" as const, params: { workId: top.work.id } }] : []),
-          { label: "Ubah deskripsi dan cek lagi", to: "/cek" as const },
-          { label: "Catat ideku", to: "/catat" as const },
-        ];
+        ...(top ? [{ label: "Lihat bedanya", to: "/hasil/$workId" as const, params: { workId: top.work.id } }] : []),
+        { label: "Ubah deskripsi dan cek lagi", to: "/cek" as const },
+        { label: "Catat ideku", to: "/catat" as const },
+      ];
 
   return (
     <main className="bg-canvas-grid py-16">
@@ -68,15 +68,31 @@ function HasilPage() {
           <p className="mt-3 max-w-xl text-lg opacity-90">{band.sub}</p>
         </div>
 
-        <div className="mt-10 grid gap-8 md:grid-cols-[1.2fr_1fr]">
+        <div className="mt-10 grid gap-8 md:grid-cols-[1.2fr_1fr] print:grid-cols-1">
           <PosterCard rotate={0.5} className="space-y-6">
-            <ScoreBar label="Kemiripan teks" hint="Kata dan frasa yang sama" value={result.topText} color="blue" />
-            <ScoreBar label="Kemiripan konsep" hint="Ide intinya yang sama" value={result.topConcept} color="green" />
+            <ScoreBar label="Kesamaan kata" hint="Ada berapa kata yang persis sama" value={result.topText} color="blue" />
+            <ScoreBar label="Kesamaan topik" hint="Apakah bahas bidang yang sama" value={result.topConcept} color="green" />
+            {result.topSemantic !== undefined && (
+              <ScoreBar label="Kesamaan arti" hint="Walau beda kata, artinya mirip nggak" value={result.topSemantic} color="yellow" />
+            )}
             <div className="rounded-2xl bg-muted p-4 text-sm">
-              <p className="font-bold">Skor gabungan = teks × 0,5 + konsep × 0,5</p>
+              <p className="font-bold">
+                {result.topSemantic !== undefined
+                  ? "Skor gabungan = kata × 0,35 + topik × 0,35 + arti × 0,3"
+                  : "Skor gabungan = kata × 0,5 + topik × 0,5"}
+              </p>
               <p className="mt-1 text-muted-foreground">
-                = {Math.round(result.topText * 100)}% × 0,5 + {Math.round(result.topConcept * 100)}% × 0,5 ={" "}
-                <strong className="text-foreground">{Math.round((top?.combined ?? 0) * 100)}%</strong>
+                {result.topSemantic !== undefined ? (
+                  <>
+                    = {Math.round(result.topText * 100)}% × 0,35 + {Math.round(result.topConcept * 100)}% × 0,35 + {Math.round(result.topSemantic * 100)}% × 0,3 ={" "}
+                    <strong className="text-foreground">{Math.round((top?.combined ?? 0) * 100)}%</strong>
+                  </>
+                ) : (
+                  <>
+                    = {Math.round(result.topText * 100)}% × 0,5 + {Math.round(result.topConcept * 100)}% × 0,5 ={" "}
+                    <strong className="text-foreground">{Math.round((top?.combined ?? 0) * 100)}%</strong>
+                  </>
+                )}
               </p>
             </div>
             <button onClick={() => setShowWhy(!showWhy)} className="text-sm font-bold text-adil-blue underline-offset-4 hover:underline" aria-expanded={showWhy}>
@@ -89,7 +105,7 @@ function HasilPage() {
             )}
           </PosterCard>
 
-          <PosterCard rotate={-1} className="relative">
+          <PosterCard rotate={-1} className="relative print:hidden">
             <CommentBubble emoji="🙂" text="Ini bukan vonis ya" className="absolute -right-3 -top-4 rotate-3" />
             <h2 className="font-display text-2xl font-extrabold">Langkah selanjutnya</h2>
             <div className="mt-5 flex flex-col gap-3">

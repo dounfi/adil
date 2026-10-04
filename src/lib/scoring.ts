@@ -12,6 +12,7 @@ export interface MatchResult {
   work: Work;
   textScore: number; // 0..1 cosine TF-IDF
   conceptScore: number; // 0..1 Jaccard keyphrases
+  semanticScore?: number | undefined; // 0..1 semantic embedding
   combined: number; // 0..1
   sharedPhrases: string[]; // keyphrases ditemukan di input
   sharedWords: string[]; // kata penting yang sama
@@ -23,6 +24,7 @@ export interface CheckResult {
   band: "rendah" | "sedang" | "tinggi";
   topText: number;
   topConcept: number;
+  topSemantic?: number | undefined;
 }
 
 export function tokenize(text: string): string[] {
@@ -50,6 +52,7 @@ export function checkIdea(title: string, description: string): CheckResult {
       work: foundWork,
       textScore: m.textScore,
       conceptScore: m.conceptScore,
+      semanticScore: m.semanticScore,
       combined: m.combinedScore,
       sharedPhrases: m.sharedPhrases,
       sharedWords: m.sharedWords,
@@ -59,7 +62,7 @@ export function checkIdea(title: string, description: string): CheckResult {
   const top = matches[0];
   const topScore = top?.combined ?? 0;
   const band: CheckResult["band"] =
-    topScore >= 0.4 ? "tinggi" : topScore >= 0.18 ? "sedang" : "rendah";
+    topScore >= 0.6 ? "tinggi" : topScore >= 0.35 ? "sedang" : "rendah";
 
   const result: CheckResult = {
     query: { title, description },
@@ -67,6 +70,7 @@ export function checkIdea(title: string, description: string): CheckResult {
     band,
     topText: top?.textScore ?? 0,
     topConcept: top?.conceptScore ?? 0,
+    topSemantic: top?.semanticScore,
   };
 
   setLastResult(result);
@@ -87,6 +91,7 @@ export function setLastResult(r: CheckResult | FullMatchResult) {
           work: found,
           textScore: m.textScore,
           conceptScore: m.conceptScore,
+          semanticScore: m.semanticScore,
           combined: m.combined,
           sharedPhrases: m.sharedPhrases,
           sharedWords: m.sharedWords,
@@ -95,6 +100,7 @@ export function setLastResult(r: CheckResult | FullMatchResult) {
       band: r.band,
       topText: r.topText,
       topConcept: r.topConcept,
+      topSemantic: r.topSemantic,
     };
   } else {
     localLastResult = r;
@@ -113,6 +119,7 @@ export function getLastResult(): CheckResult | null {
           work: found,
           textScore: m.textScore,
           conceptScore: m.conceptScore,
+          semanticScore: m.semanticScore,
           combined: m.combined,
           sharedPhrases: m.sharedPhrases,
           sharedWords: m.sharedWords,
@@ -121,6 +128,7 @@ export function getLastResult(): CheckResult | null {
       band: matchRes.band,
       topText: matchRes.topText,
       topConcept: matchRes.topConcept,
+      topSemantic: matchRes.topSemantic,
     };
   }
   return null;
