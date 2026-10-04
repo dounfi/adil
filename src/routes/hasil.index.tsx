@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ExternalLink, Search, Palette, ShieldCheck, CheckCircle2 } from "lucide-react";
-import { Mascot, StickerLabel } from "@/components/decor";
+import { Mascot, StickerLabel, FrameLabel, CommentBubble } from "@/components/decor";
 import { PosterCard, ScoreBar } from "@/components/chrome";
 import { EmptyState } from "@/components/empty";
 import { getLastResult } from "@/lib/scoring";
@@ -56,14 +56,16 @@ function HasilPage() {
   return (
     <main className="bg-canvas-grid py-16">
       <div className="mx-auto max-w-5xl px-4">
+        <FrameLabel>Hasil / Ringkasan</FrameLabel>
+
         {/* ── BANNER HASIL ── */}
-        <div className={`relative rounded-3xl p-8 shadow-poster-lg md:p-12 ${band.bg}`} style={{ transform: "rotate(-0.6deg)" }}>
-          <Mascot color={band.mascot} mood={band.mood} className="absolute -top-6 right-8" />
+        <div className={`relative rounded-3xl p-8 shadow-poster-lg md:p-12 ${band.bg}`} style={{ transform: "rotate(-0.5deg)" }}>
+          <Mascot color={band.mascot} mood={band.mood} className="absolute -top-8 -right-4 z-10 scale-125 md:scale-150" />
           <p className="text-sm font-bold uppercase tracking-widest opacity-80">
             {isPoster ? "Poster:" : "Untuk:"} "{result.query.title || "Karya tanpa judul"}"
           </p>
-          <h1 className="mt-3 font-display text-4xl font-extrabold leading-tight md:text-6xl">{band.title}</h1>
-          <p className="mt-3 max-w-xl text-lg opacity-90">{band.sub}</p>
+          <h1 className="mt-3 font-display text-4xl font-extrabold leading-tight tracking-tight md:text-6xl">{band.title}</h1>
+          <p className="mt-4 max-w-xl text-lg opacity-90">{band.sub}</p>
           {isPoster && (
             <p className="mt-2 text-sm opacity-70">
               Poster dianalisis dari bentuk visual, komposisi tata letak, palet warna, dan teks desain.
@@ -216,8 +218,8 @@ function HasilPage() {
         )}
 
         {/* ── GRID SKOR + LANGKAH ── */}
-        <div className="mt-10 grid gap-8 md:grid-cols-[1.2fr_1fr] print:grid-cols-1">
-          <PosterCard rotate={0.5} className="space-y-6">
+        <div className="mt-10 grid gap-8 md:grid-cols-[1.2fr_1fr] items-stretch print:grid-cols-1">
+          <PosterCard rotate={0.5} className="flex h-full flex-col space-y-6">
             <h2 className="font-display text-xl font-extrabold">
               {isPoster ? "Indikator Visual" : "Indikator Kesamaan"}
             </h2>
@@ -261,9 +263,10 @@ function HasilPage() {
             )}
           </PosterCard>
 
-          <PosterCard rotate={-1} className="relative print:hidden">
+          <PosterCard rotate={-1} className="relative flex h-full flex-col print:hidden">
+            <CommentBubble emoji="🤓" text="Ini bukan vonis ya" className="absolute -right-6 -top-6 z-10 rotate-3 scale-110" />
             <h2 className="font-display text-2xl font-extrabold">Langkah selanjutnya</h2>
-            <div className="mt-5 flex flex-col gap-3">
+            <div className="mt-6 flex flex-1 flex-col justify-end gap-3">
               {nextSteps.map((s) =>
                 "params" in s ? (
                   <Link key={s.label} to={s.to} params={s.params} className="rounded-full bg-adil-blue px-5 py-3 text-center font-bold text-white transition-transform hover:scale-[1.03]">{s.label}</Link>
