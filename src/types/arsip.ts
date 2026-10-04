@@ -82,6 +82,17 @@ export interface ArsipData {
 export interface MatchedPosterResult {
   id: string;
   judul: string;
+  tahun?: number | undefined;
+  lomba?: string | undefined;
+  institusi?: string | undefined;
+  tim?: string | undefined;
+  kategori?: string | undefined;
+  peringkat?: string | undefined;
+  lisensi?: string | undefined;
+  gambar_url?: string | undefined;
+  dhash?: string | undefined;
+  layout?: number[] | undefined;
+  color_hist?: number[] | undefined;
   ocrScore?: number | undefined;
   ocrTeksArsip?: string | undefined;
   dhashScore?: number | undefined;
@@ -90,6 +101,7 @@ export interface MatchedPosterResult {
   combinedScore: number;
   hammingDistance?: number | undefined;
   sumber_url?: string | undefined;
+  sharedWords?: string[] | undefined;
 }
 
 export interface MatchedTextResult {
@@ -105,6 +117,9 @@ export interface MatchedTextResult {
 }
 
 export interface MatchResult {
+  isPoster?: boolean | undefined;
+  userPosterUrl?: string | undefined;
+  visualFeatures?: VisualFeatures | null | undefined;
   matchedPosters: MatchedPosterResult[];
   matchedTexts: MatchedTextResult[];
   band: "rendah" | "sedang" | "tinggi";
@@ -112,12 +127,18 @@ export interface MatchResult {
   topText: number;
   topConcept: number;
   topSemantic?: number | undefined;
+  topLayout?: number | undefined;
+  topColor?: number | undefined;
+  topHash?: number | undefined;
+  topOcr?: number | undefined;
+  topHamming?: number | undefined;
   query: {
     title: string;
     description: string;
     extractedText?: string | undefined;
     fileName?: string | undefined;
     inputType?: "teks" | "file" | undefined;
+    fileType?: "image" | "document" | undefined;
   };
   matches: Array<{
     work: {
@@ -130,6 +151,9 @@ export interface MatchResult {
       summary: string;
       keyphrases: string[];
       sourceUrl: string;
+      rank?: string | undefined;
+      license?: string | undefined;
+      posterUrl?: string | undefined;
     };
     textScore: number;
     conceptScore: number;
@@ -137,5 +161,6 @@ export interface MatchResult {
     combined: number;
     sharedPhrases: string[];
     sharedWords: string[];
+    poster?: MatchedPosterResult | undefined;
   }>;
 }

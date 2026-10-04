@@ -317,7 +317,8 @@ export function matchTextWithArsip(
  */
 export function matchVisualWithArsip(
   userFeatures: VisualFeatures,
-  arsipData: ArsipData
+  arsipData: ArsipData,
+  extractedOcrText?: string
 ): MatchedPosterResult[] {
   const posters = arsipData.gambar || [];
   if (!posters.length || !userFeatures) return [];
@@ -326,23 +327,38 @@ export function matchVisualWithArsip(
   const weightLayout = arsipData.config?.bobot?.layout ?? 0.4;
   const weightColor = arsipData.config?.bobot?.color ?? 0.2;
 
+  const userOcrTokens = extractedOcrText
+    ? new Set(tokenizeText(extractedOcrText, arsipData.stopwords))
+    : null;
+
   return posters
     .map((poster) => {
       // Hamming Distance (0..64) -> Konversi ke skor kemiripan 0..1
       const hamming = calculateHammingDistance(userFeatures.dhash, poster.dhash);
       const dhashScore = Math.max(0, Number((1 - hamming / 32).toFixed(4)));
 
-      // Layout Similarity (16x16) -> 0..1
+      // Layout Similarity (16x16) -> 0..1 (Pearson correlation)
       const layoutScore = poster.layout
         ? calculateLayoutSimilarity(userFeatures.layout, poster.layout)
         : 0;
 
-      // Color Histogram (64 bin) -> 0..1
+      // Color Histogram (64 bin) -> 0..1 (Histogram Intersection)
       const colorScore = poster.color_hist
         ? calculateHistogramIntersection(userFeatures.colorHist, poster.color_hist)
         : 0;
 
-      const combinedScore = Number(
+      let ocrScore = 0;
+      let sharedWords: string[] = [];
+      if (extractedOcrText && poster.ocr_teks) {
+        ocrScore = calculateWordSimilarity(extractedOcrText, poster.ocr_teks);
+        if (userOcrTokens) {
+          const archiveTokens = tokenizeText(poster.ocr_teks, arsipData.stopwords);
+          sharedWords = [...new Set(archiveTokens.filter((w) => userOcrTokens.has(w)))].slice(0, 10);
+        }
+      }
+
+      // Gabungkan skor visual (dHash 40% + Layout 40% + Warna 20%)
+      let combinedScore = Number(
         (
           weightHash * dhashScore +
           weightLayout * layoutScore +
@@ -350,16 +366,34 @@ export function matchVisualWithArsip(
         ).toFixed(4)
       );
 
+      // Jika ada kesamaan teks OCR di kedua poster, pertimbangkan sedikit bobot OCR
+      if (ocrScore > 0) {
+        combinedScore = Number((0.85 * combinedScore + 0.15 * ocrScore).toFixed(4));
+      }
+
       return {
         id: poster.id,
         judul: poster.judul,
+        tahun: poster.tahun,
+        lomba: poster.lomba,
+        institusi: poster.institusi,
+        tim: poster.tim,
+        kategori: poster.kategori || "POSTER",
+        peringkat: poster.peringkat,
+        lisensi: (poster as { lisensi?: string }).lisensi,
+        gambar_url: (poster as { gambar_url?: string }).gambar_url,
+        dhash: poster.dhash,
+        layout: poster.layout,
+        color_hist: poster.color_hist,
         dhashScore,
         layoutScore,
         colorScore,
+        ocrScore: ocrScore > 0 ? ocrScore : undefined,
         combinedScore,
         hammingDistance: hamming,
         ocrTeksArsip: poster.ocr_teks,
         sumber_url: poster.sumber_url,
+        sharedWords,
       };
     })
     .sort((a, b) => b.combinedScore - a.combinedScore);
@@ -393,6 +427,11 @@ export function matchOCRWithArsip(
       return {
         id: item.id,
         judul: item.judul,
+        tahun: item.tahun,
+        lomba: item.lomba,
+        institusi: item.institusi,
+        kategori: item.kategori || "POSTER",
+        peringkat: item.peringkat,
         ocrScore: score,
         combinedScore: score,
         ocrTeksArsip: item.ocr_teks,
@@ -462,8 +501,91 @@ export async function matchAllInputs(params: {
   visualFeatures?: VisualFeatures | null;
   arsipData?: ArsipData | null;
   userEmbedding?: number[] | null;
+  userPosterUrl?: string | null;
+  isPoster?: boolean;
 }): Promise<MatchResult> {
   const arsip = params.arsipData || (await loadArsipData());
+  const isPoster =
+    params.isPoster ||
+    !!params.visualFeatures ||
+    (params.file
+      ? params.file.type.startsWith("image/") || /\.(png|jpe?g|webp|bmp)$/i.test(params.file.name)
+      : false);
+
+  // ========================================================
+  // JALUR A: ANALISIS POSTER / GAMBAR VISUAL
+  // ========================================================
+  if (isPoster && params.visualFeatures) {
+    const matchedPosters = matchVisualWithArsip(params.visualFeatures, arsip, params.extractedText);
+    const topPoster = matchedPosters[0];
+    const topScore = topPoster?.combinedScore ?? 0;
+
+    const lowMax = arsip.config?.ambang_band?.rendah_maks ?? 0.35;
+    const midMax = arsip.config?.ambang_band?.sedang_maks ?? 0.6;
+    const band = topScore >= midMax ? "tinggi" : topScore >= lowMax ? "sedang" : "rendah";
+
+    const posterMatches = matchedPosters.slice(0, 6).map((p) => ({
+      work: {
+        id: p.id,
+        title: p.judul,
+        year: p.tahun ?? 2024,
+        competition: p.lomba ?? "Lomba Desain Poster Nasional",
+        institution: p.institusi ?? "Institusi Terkait",
+        category: p.kategori ?? "POSTER",
+        summary: p.ocrTeksArsip
+          ? `Teks terbaca dalam poster: "${p.ocrTeksArsip.slice(0, 160)}${p.ocrTeksArsip.length > 160 ? '...' : ''}"`
+          : `Poster pemenang ${p.lomba || 'lomba desain poster'}.`,
+        keyphrases: p.sharedWords && p.sharedWords.length > 0
+          ? p.sharedWords
+          : ["desain visual", "komposisi poster", "tata letak", "palet warna"],
+        sourceUrl: p.sumber_url ?? "",
+        rank: p.peringkat,
+        license: p.lisensi,
+        posterUrl: p.gambar_url,
+      },
+      textScore: p.ocrScore ?? 0,
+      conceptScore: p.layoutScore ?? 0,
+      semanticScore: p.colorScore ?? 0,
+      combined: p.combinedScore,
+      sharedPhrases: p.sharedWords ?? [],
+      sharedWords: p.sharedWords ?? [],
+      poster: p,
+    }));
+
+    const result: MatchResult = {
+      isPoster: true,
+      userPosterUrl: params.userPosterUrl || (params.file ? URL.createObjectURL(params.file) : undefined),
+      visualFeatures: params.visualFeatures,
+      matchedPosters,
+      matchedTexts: [],
+      band,
+      topScore,
+      topText: topPoster?.ocrScore ?? 0,
+      topConcept: topPoster?.layoutScore ?? 0,
+      topSemantic: topPoster?.colorScore ?? 0,
+      topLayout: topPoster?.layoutScore ?? 0,
+      topColor: topPoster?.colorScore ?? 0,
+      topHash: topPoster?.dhashScore ?? 0,
+      topOcr: topPoster?.ocrScore ?? 0,
+      topHamming: topPoster?.hammingDistance ?? 0,
+      query: {
+        title: params.title || (params.file?.name.replace(/\.[^/.]+$/, "").replace(/[_-]+/g, " ") ?? "Poster Unggahan"),
+        description: params.description || params.extractedText || "Analisis berkas poster visual",
+        extractedText: params.extractedText,
+        fileName: params.file?.name,
+        inputType: "file",
+        fileType: "image",
+      },
+      matches: posterMatches,
+    };
+
+    setLastMatchResult(result);
+    return result;
+  }
+
+  // ========================================================
+  // JALUR B: ANALISIS TEKS / DOKUMEN (PDF, DOCX, TXT, KETIKAN)
+  // ========================================================
   const combinedText = `${params.title} ${params.description} ${params.extractedText || ''}`.trim();
 
   // Ekstrak On-Device Semantic Embedding jika belum disediakan
@@ -479,36 +601,8 @@ export async function matchAllInputs(params: {
   // 1. Jalankan Text Matching dengan dukungan semantic embedding
   const matchedTexts = matchTextWithArsip(combinedText, arsip, userEmbedding);
 
-  // 2. Jalankan Visual Matching bila ada fitur gambar
-  let matchedPosters: MatchedPosterResult[] = [];
-  if (params.visualFeatures) {
-    matchedPosters = matchVisualWithArsip(params.visualFeatures, arsip);
-  }
-
-  // 3. Jika ada teks hasil OCR, gabungkan ke skor poster
-  if (params.extractedText && matchedPosters.length > 0) {
-    matchedPosters = matchedPosters
-      .map((poster) => {
-        const ocrSim = calculateWordSimilarity(params.extractedText!, poster.ocrTeksArsip || '');
-        const ocrWeight = arsip.config?.bobot?.ocr ?? 0.3;
-        const newCombined = Number(
-          ((1 - ocrWeight) * poster.combinedScore + ocrWeight * ocrSim).toFixed(4)
-        );
-        return {
-          ...poster,
-          ocrScore: ocrSim,
-          combinedScore: newCombined,
-        };
-      })
-      .sort((a, b) => b.combinedScore - a.combinedScore);
-  }
-
   const topText = matchedTexts[0];
-  const topPoster = matchedPosters[0];
-  const topScore = Math.max(
-    topText?.combinedScore ?? 0,
-    topPoster?.combinedScore ?? 0
-  );
+  const topScore = topText?.combinedScore ?? 0;
   const lowMax = arsip.config?.ambang_band?.rendah_maks ?? 0.35;
   const midMax = arsip.config?.ambang_band?.sedang_maks ?? 0.6;
 
@@ -536,7 +630,8 @@ export async function matchAllInputs(params: {
   }));
 
   const result: MatchResult = {
-    matchedPosters,
+    isPoster: false,
+    matchedPosters: [],
     matchedTexts,
     band,
     topScore,
@@ -549,6 +644,7 @@ export async function matchAllInputs(params: {
       extractedText: params.extractedText,
       fileName: params.file?.name,
       inputType: params.file ? 'file' : 'teks',
+      fileType: 'document',
     },
     matches,
   };

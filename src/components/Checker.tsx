@@ -16,10 +16,16 @@ interface CheckerProps {
   onAnalysisComplete?: (result: MatchResult) => void;
 }
 
-const LOADING_STEPS = [
+const LOADING_STEPS_DOKUMEN = [
   "Membaca berkas dokumen & mengekstrak konten...",
   "Gemini AI menyaring dokumen & mengekstrak ide inti...",
   "Mencocokkan kata, topik, & makna dengan arsip...",
+];
+
+const LOADING_STEPS_POSTER = [
+  "Membaca berkas poster...",
+  "Menghitung sidik visual: dHash, tata letak, palet warna...",
+  "Mencocokkan dengan arsip poster pemenang...",
 ];
 
 export function Checker({ showInlineResults = false, onAnalysisComplete }: CheckerProps) {
@@ -34,24 +40,38 @@ export function Checker({ showInlineResults = false, onAnalysisComplete }: Check
   const [inputType, setInputType] = useState<"teks" | "file">("teks");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [inlineResult, setInlineResult] = useState<MatchResult | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const isImageFile = (f: File | null) =>
+    !!(f && (f.type.startsWith("image/") || /\.(png|jpe?g|webp|bmp)$/i.test(f.name)));
+  const LOADING_STEPS = isImageFile(selectedFile) ? LOADING_STEPS_POSTER : LOADING_STEPS_DOKUMEN;
 
   useEffect(() => {
     if (!loading) return;
     const t = setInterval(() => setStep((s) => (s + 1) % LOADING_STEPS.length), 1000);
     return () => clearInterval(t);
-  }, [loading]);
+  }, [loading, LOADING_STEPS.length]);
 
   function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
       setError("");
+      // Buat preview URL untuk gambar/poster
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      if (file.type.startsWith("image/") || /\.(png|jpe?g|webp|bmp)$/i.test(file.name)) {
+        setPreviewUrl(URL.createObjectURL(file));
+      } else {
+        setPreviewUrl(null);
+      }
     }
   }
 
   function removeSelectedFile(e: React.MouseEvent) {
     e.stopPropagation();
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
     setSelectedFile(null);
+    setPreviewUrl(null);
   }
 
   async function submit(e: React.FormEvent) {
@@ -112,14 +132,23 @@ export function Checker({ showInlineResults = false, onAnalysisComplete }: Check
         finalDesc = desc.trim() || extractedText;
       }
 
+      const isImg = isImageFile(selectedFile);
+      // Untuk poster: judul = nama file, desc = teks OCR (bukan disematkan ke query esai)
+      if (isImg) {
+        finalTitle = title.trim() || selectedFile!.name.replace(/\.[^/.]+$/, "").replace(/[_-]+/g, " ").trim();
+        finalDesc = "";
+      }
+
       // Hitung perbandingan dan kemiripan terhadap data arsip static
       const matchResult = await matchAllInputs({
         title: finalTitle,
         description: finalDesc,
         file: selectedFile,
-        extractedText,
+        extractedText: isImg ? extractedText : finalDesc,
         visualFeatures,
         arsipData,
+        isPoster: isImg,
+        userPosterUrl: previewUrl,
       });
 
       // Simpan ke scoring memory untuk rute /hasil
@@ -249,7 +278,7 @@ export function Checker({ showInlineResults = false, onAnalysisComplete }: Check
                 </div>
               </div>
             ) : (
-              <div className="relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border bg-muted/30 px-6 py-14 text-center transition-colors hover:border-adil-blue hover:bg-adil-blue/5 animate-in fade-in">
+              <div className="relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border bg-muted/30 px-6 py-10 text-center transition-colors hover:border-adil-blue hover:bg-adil-blue/5 animate-in fade-in">
                 <input
                   type="file"
                   className="absolute inset-0 cursor-pointer opacity-0"
@@ -258,14 +287,25 @@ export function Checker({ showInlineResults = false, onAnalysisComplete }: Check
                 />
 
                 {selectedFile ? (
-                  <div className="flex flex-col items-center text-center">
-                    <span className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-adil-blue/15 text-adil-blue shadow-sm">
-                      {selectedFile.type.startsWith("image/") ? (
-                        <ImageIcon className="h-7 w-7" />
-                      ) : (
+                  <div className="flex flex-col items-center text-center w-full">
+                    {previewUrl ? (
+                      /* ── PREVIEW POSTER ── */
+                      <div className="relative mb-3 w-full max-w-xs">
+                        <img
+                          src={previewUrl}
+                          alt="Preview poster"
+                          className="w-full rounded-2xl border-2 border-adil-blue/30 object-contain shadow-md"
+                          style={{ maxHeight: 220 }}
+                        />
+                        <span className="absolute -right-2 -top-2 rounded-full bg-adil-blue px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-white shadow">
+                          POSTER
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-adil-blue/15 text-adil-blue shadow-sm">
                         <FileText className="h-7 w-7" />
-                      )}
-                    </span>
+                      </span>
+                    )}
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-bold text-foreground max-w-xs truncate">
                         {selectedFile.name}
@@ -280,8 +320,17 @@ export function Checker({ showInlineResults = false, onAnalysisComplete }: Check
                       </button>
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {(selectedFile.size / 1024).toFixed(1)} KB · Siap dianalisis
+                      {(selectedFile.size / 1024).toFixed(1)} KB ·{" "}
+                      {previewUrl ? "Akan dicek visual + OCR" : "Akan diekstrak teksnya"}
                     </p>
+                    {previewUrl && (
+                      <div className="mt-3 flex flex-wrap justify-center gap-1.5">
+                        <span className="rounded-full bg-adil-blue/10 px-2.5 py-1 text-[11px] font-semibold text-adil-blue">⬛ dHash</span>
+                        <span className="rounded-full bg-adil-green/10 px-2.5 py-1 text-[11px] font-semibold text-adil-green">📐 Tata Letak</span>
+                        <span className="rounded-full bg-adil-yellow/20 px-2.5 py-1 text-[11px] font-semibold text-adil-ink">🎨 Palet Warna</span>
+                        <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">📝 OCR Teks</span>
+                      </div>
+                    )}
                     <p className="mt-3 text-xs font-semibold text-adil-blue underline underline-offset-2">
                       Klik untuk mengganti berkas
                     </p>
@@ -307,8 +356,10 @@ export function Checker({ showInlineResults = false, onAnalysisComplete }: Check
                     </span>
                     <p className="text-sm font-bold">Tarik poster atau proposal ke sini</p>
                     <p className="mt-2 text-xs text-muted-foreground">
-                      Support PDF, DOCX, TXT, PNG, JPG (Maks. 5MB).
+                      PNG/JPG → cek visual poster (dHash, tata letak, warna, OCR).
                       <br />
+                      PDF/DOCX/TXT → cek kemiripan teks & konsep ide.
+
                       Teks akan diekstrak secara otomatis di browser.
                     </p>
                   </>
