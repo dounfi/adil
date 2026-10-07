@@ -78,8 +78,7 @@
 
   html,
   body {
-    overflow-x: hidden;
-    max-width: 100vw;
+    /* overflow-x: hidden prevents sticky positioning from working */
   }
 
   body {

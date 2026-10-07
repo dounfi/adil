@@ -6,44 +6,67 @@ import type { ReactNode } from "react";
 
 export function Logo() {
   return (
-    <Link to="/" className="font-display text-2xl font-extrabold tracking-tight" aria-label="ADIL - beranda">
-      <span className="text-adil-blue">A</span>
-      <span className="text-adil-red">D</span>
-      <span className="text-adil-yellow">I</span>
-      <span className="text-adil-green">L</span>
+    <Link to="/" aria-label="ADIL - beranda" className="flex items-center">
+      <img src="/logo.svg" alt="ADIL Logo" className="h-8" />
     </Link>
   );
 }
 
+import { useState, useEffect } from "react";
+
 export function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   const links = [
     { to: "/cek", label: "Cek Ide" },
     { to: "/arsip", label: "Arsip" },
     { to: "/cara-kerja", label: "Cara Kerja" },
   ] as const;
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Logo />
-        <div className="hidden items-center gap-6 md:flex">
-          {links.map((l) => (
-            <Link
-              key={l.to}
-              to={l.to}
-              className="text-sm font-semibold text-foreground/80 transition-colors hover:text-foreground"
-              activeProps={{ className: "text-adil-blue" }}
-            >
-              {l.label}
-            </Link>
-          ))}
-        </div>
-        <Link
-          to="/cek"
-          className="inline-flex items-center gap-1.5 rounded-full bg-adil-blue px-5 py-2.5 text-sm font-bold text-white shadow-poster transition-transform hover:scale-105 hover:-rotate-1"
+    <header
+      className={cn(
+        "sticky top-0 z-50 transition-all duration-300",
+        scrolled ? "pt-4" : "border-b border-border bg-background/90 backdrop-blur"
+      )}
+    >
+      <div className={cn("transition-all duration-300", scrolled && "px-4")}>
+        <nav
+          className={cn(
+            "mx-auto flex items-center justify-between transition-all duration-300",
+            scrolled
+              ? "max-w-4xl rounded-full border border-border/50 bg-background/80 px-6 py-2.5 shadow-poster backdrop-blur-md"
+              : "max-w-6xl px-4 py-3"
+          )}
         >
-          Cek ide aku <ArrowRight className="h-4 w-4" />
-        </Link>
-      </nav>
+          <Logo />
+          <div className="hidden items-center gap-6 md:flex">
+            {links.map((l) => (
+              <Link
+                key={l.to}
+                to={l.to}
+                className="text-sm font-semibold text-foreground/80 transition-colors hover:text-foreground"
+                activeProps={{ className: "text-adil-blue" }}
+              >
+                {l.label}
+              </Link>
+            ))}
+          </div>
+          <Link
+            to="/cek"
+            className="inline-flex items-center gap-1.5 rounded-full bg-adil-blue px-5 py-2.5 text-sm font-bold text-white shadow-poster transition-transform hover:scale-105 hover:-rotate-1"
+          >
+            Cek ide aku <ArrowRight className="h-4 w-4" />
+          </Link>
+        </nav>
+      </div>
     </header>
   );
 }
